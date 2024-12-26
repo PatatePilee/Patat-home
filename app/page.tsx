@@ -1,0 +1,1 @@
+import { getFeaturedAccounts } from "./types/account"; 

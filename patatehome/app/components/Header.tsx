@@ -17,6 +17,21 @@ export default function Header() {
           >
             Nos Comptes
           </Link>
+          <Link href="/join" className="hover:text-blue-600 transition-colors">
+            Nous Rejoindre
+          </Link>
+          <Link
+            href="/reviews"
+            className="hover:text-blue-600 transition-colors"
+          >
+            Avis
+          </Link>
+          <Link
+            href="/delivery"
+            className="hover:text-blue-600 transition-colors"
+          >
+            Livraison & Paiement
+          </Link>
         </div>
       </nav>
     </header>

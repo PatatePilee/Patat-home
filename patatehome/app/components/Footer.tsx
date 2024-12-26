@@ -48,6 +48,14 @@ export default function Footer() {
               </li>
               <li>
                 <Link
+                  href="/join"
+                  className="hover:text-blue-600 transition-colors"
+                >
+                  Nous Rejoindre
+                </Link>
+              </li>
+              <li>
+                <Link
                   href="/faq"
                   className="hover:text-blue-600 transition-colors"
                 >

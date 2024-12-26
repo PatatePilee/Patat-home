@@ -80,7 +80,7 @@ export default function Home() {
       </section>
 
       {/* Section À propos */}
-      <section className="py-24">
+      <section className="pb-12">
         <div className="max-w-7xl mx-auto px-4">
           <h2 className="text-5xl font-bold mb-16 text-center hover:text-blue-500 transition-colors duration-300">
             Notre Expertise
