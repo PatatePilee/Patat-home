@@ -114,13 +114,13 @@ export default function AccountDetailPage({
 
             <div className="flex space-x-4">
               <Link
-                href="https://discord.gg/votre-serveur"
+                href="https://discord.gg/patate"
                 className="flex-1 bg-blue-600 text-white py-4 rounded-xl font-semibold text-center hover:bg-blue-700 transition-colors"
               >
                 Contacter sur Discord
               </Link>
               <Link
-                href="https://telegram.me/votre-compte"
+                href="https://telegram.me/JadeOrlaBeat"
                 className="flex-1 bg-blue-600 text-white py-4 rounded-xl font-semibold text-center hover:bg-blue-700 transition-colors"
               >
                 Contacter sur Telegram

@@ -19,7 +19,7 @@ export default function Home() {
         />
         <div className="relative z-20 text-center text-white max-w-4xl px-4 transform hover:scale-105 transition-transform duration-500">
           <h1 className="text-6xl font-bold mb-6 animate-fade-in">
-            ClashCompte Pro
+            Patate Clash of Clans
           </h1>
           <p className="text-2xl mb-8 text-white/90">
             Votre marketplace de confiance pour l'achat de comptes Clash of
@@ -90,7 +90,7 @@ export default function Home() {
               <p className="text-3xl leading-relaxed mb-8 text-white/60 group-hover:text-white transition-colors">
                 Bienvenue sur{" "}
                 <span className="text-blue-500 font-semibold">
-                  ClashCompte Pro
+                  Patate Clash of Clans
                 </span>
                 , votre destination de confiance pour les comptes Clash of Clans
                 !
