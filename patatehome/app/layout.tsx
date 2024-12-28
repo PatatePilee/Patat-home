@@ -19,7 +19,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fr" className={geist.className}>
-      <body className="antialiased">
+      <body suppressHydrationWarning>
         <Header />
         <main className="pt-16">{children}</main>
         <Footer />

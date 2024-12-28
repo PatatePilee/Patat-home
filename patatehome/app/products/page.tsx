@@ -92,7 +92,7 @@ export default function ProductsPage() {
           <input
             type="text"
             placeholder="Rechercher un compte..."
-            className="w-full p-4 rounded-lg border border-foreground/10 bg-background"
+            className="w-full p-4 rounded-lg border border-foreground/10 bg-black/40 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
