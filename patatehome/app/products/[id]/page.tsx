@@ -2,15 +2,14 @@
 import { accounts } from "@/app/types/account";
 import Image from "next/image";
 import Link from "next/link";
-import { useState, use } from "react";
+import { useState } from "react";
 
 export default function AccountDetailPage({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  params: { id: string };
 }) {
-  const resolvedParams = use(params);
-  const account = accounts.find((a) => a.id === resolvedParams.id);
+  const account = accounts.find((a) => a.id === params.id);
   const [selectedImage, setSelectedImage] = useState(0);
 
   if (!account) {
