@@ -1,14 +1,10 @@
-import { Geist } from "next/font/google";
+import { GeistSans } from "geist/font/sans";
 import "./globals.css";
 import Header from "./components/Header";
 import { metadata } from "./metadata";
 import Footer from "./components/Footer";
 
-const geist = Geist({
-  subsets: ["latin"],
-  adjustFontFallback: false,
-  display: "swap",
-});
+const font = GeistSans;
 
 export { metadata };
 
@@ -18,7 +14,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="fr" className={geist.className}>
+    <html lang="fr" className={font.className}>
       <body suppressHydrationWarning>
         <Header />
         <main className="pt-16">{children}</main>
