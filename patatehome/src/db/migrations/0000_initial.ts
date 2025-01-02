@@ -25,7 +25,9 @@ async function main() {
       price INTEGER,
       image_url TEXT,
       features TEXT,
-      status TEXT
+      status TEXT,
+      created_at INTEGER,
+      updated_at INTEGER
     );
   `);
 

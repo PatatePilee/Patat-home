@@ -4,11 +4,19 @@ import { useState, useEffect } from "react";
 
 export default function Header() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     const checkLoginStatus = () => {
-      const user = localStorage.getItem("user");
-      setIsLoggedIn(!!user);
+      const userStr = localStorage.getItem("user");
+      if (userStr) {
+        const user = JSON.parse(userStr);
+        setIsLoggedIn(true);
+        setIsAdmin(user.role === "admin");
+      } else {
+        setIsLoggedIn(false);
+        setIsAdmin(false);
+      }
     };
 
     checkLoginStatus();
@@ -18,7 +26,7 @@ export default function Header() {
 
   const handleLogout = () => {
     localStorage.removeItem("user");
-    setIsLoggedIn(false);
+    document.cookie = "user=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT";
     window.location.href = "/";
   };
 
@@ -52,6 +60,14 @@ export default function Header() {
             >
               Discord
             </Link>
+            {isAdmin && (
+              <Link
+                href="/admin"
+                className="text-blue-500 hover:text-blue-400 transition-colors"
+              >
+                Administration
+              </Link>
+            )}
             {isLoggedIn ? (
               <button
                 onClick={handleLogout}

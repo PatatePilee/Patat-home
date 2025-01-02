@@ -8,7 +8,11 @@
     "start": "next start",
     "lint": "next lint",
     "db:generate": "drizzle-kit generate:sqlite",
-    "db:migrate": "tsx src/db/migrations/0000_initial.ts"
+    "db:push": "drizzle-kit push:sqlite",
+    "db:studio": "drizzle-kit studio",
+    "create:admin": "tsx src/scripts/create-admin.ts",
+    "db:migrate": "tsx src/db/migrations/0001_accounts.ts",
+    "db:migrate:accounts": "tsx src/db/migrations/0001_accounts.ts"
   },
   "dependencies": {
     "@libsql/client": "^0.5.3",

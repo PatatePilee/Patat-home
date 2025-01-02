@@ -22,6 +22,7 @@ export default function LoginPage() {
       if (response.ok) {
         const userData = await response.json();
         localStorage.setItem("user", JSON.stringify(userData.user));
+        document.cookie = `user=${JSON.stringify(userData.user)}; path=/`;
         window.location.href = "/";
       } else {
         const data = await response.json();
