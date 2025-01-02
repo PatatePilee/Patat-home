@@ -1,8 +1,10 @@
 "use client";
 import { useState } from "react";
 import AccountsTable from "./components/AccountsTable";
+import UsersTable from "./components/UsersTable";
 
 export default function AdminPage() {
+  const [activeTab, setActiveTab] = useState<"accounts" | "users">("accounts");
   const [accountForm, setAccountForm] = useState({
     hdv: "",
     level: "",
@@ -10,6 +12,13 @@ export default function AdminPage() {
     imageUrl: "",
     features: "",
     status: "available",
+  });
+
+  const [userForm, setUserForm] = useState({
+    username: "",
+    email: "",
+    password: "",
+    role: "user",
   });
 
   const handleCreateAccount = async (e: React.FormEvent) => {
@@ -42,66 +51,209 @@ export default function AdminPage() {
     }
   };
 
+  const handleCreateUser = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const response = await fetch("/api/admin/users", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(userForm),
+      });
+
+      if (response.ok) {
+        setUserForm({
+          username: "",
+          email: "",
+          password: "",
+          role: "user",
+        });
+        const usersTableElement = document.querySelector(
+          '[data-component="users-table"]'
+        );
+        if (usersTableElement) {
+          const event = new Event("reload");
+          usersTableElement.dispatchEvent(event);
+        }
+      }
+    } catch (error) {
+      console.error("Erreur lors de la création:", error);
+    }
+  };
+
   return (
     <div className="min-h-screen p-8 bg-black">
       <div className="max-w-7xl mx-auto space-y-8">
         <h1 className="text-3xl font-bold text-white">Administration</h1>
-        
-        {/* Section création de compte */}
-        <div className="bg-white/5 p-6 rounded-xl">
-          <h2 className="text-2xl font-bold mb-4 text-white">Créer un compte</h2>
-          <form onSubmit={handleCreateAccount} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <input
-                type="number"
-                placeholder="HDV"
-                value={accountForm.hdv}
-                onChange={(e) => setAccountForm({ ...accountForm, hdv: e.target.value })}
-                className="p-2 rounded bg-white/10 text-white"
-              />
-              <input
-                type="number"
-                placeholder="Niveau"
-                value={accountForm.level}
-                onChange={(e) => setAccountForm({ ...accountForm, level: e.target.value })}
-                className="p-2 rounded bg-white/10 text-white"
-              />
-              <input
-                type="number"
-                placeholder="Prix"
-                value={accountForm.price}
-                onChange={(e) => setAccountForm({ ...accountForm, price: e.target.value })}
-                className="p-2 rounded bg-white/10 text-white"
-              />
-              <input
-                type="text"
-                placeholder="URL de l'image"
-                value={accountForm.imageUrl}
-                onChange={(e) => setAccountForm({ ...accountForm, imageUrl: e.target.value })}
-                className="p-2 rounded bg-white/10 text-white"
-              />
-              <textarea
-                placeholder="Caractéristiques (une par ligne)"
-                value={accountForm.features}
-                onChange={(e) => setAccountForm({ ...accountForm, features: e.target.value })}
-                className="p-2 rounded bg-white/10 text-white md:col-span-2"
-                rows={4}
-              />
-            </div>
-            <button
-              type="submit"
-              className="w-full p-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-            >
-              Créer le compte
-            </button>
-          </form>
+
+        {/* Onglets */}
+        <div className="flex space-x-4 border-b border-white/10">
+          <button
+            onClick={() => setActiveTab("accounts")}
+            className={`px-4 py-2 ${
+              activeTab === "accounts"
+                ? "text-blue-500 border-b-2 border-blue-500"
+                : "text-white/60 hover:text-white"
+            }`}
+          >
+            Comptes
+          </button>
+          <button
+            onClick={() => setActiveTab("users")}
+            className={`px-4 py-2 ${
+              activeTab === "users"
+                ? "text-blue-500 border-b-2 border-blue-500"
+                : "text-white/60 hover:text-white"
+            }`}
+          >
+            Utilisateurs
+          </button>
         </div>
 
-        {/* Section liste des comptes */}
-        <div className="bg-white/5 p-6 rounded-xl">
-          <h2 className="text-2xl font-bold mb-4 text-white">Liste des comptes</h2>
-          <AccountsTable initialAccounts={[]} />
-        </div>
+        {activeTab === "accounts" ? (
+          <>
+            {/* Section création de compte */}
+            <div className="bg-white/5 p-6 rounded-xl">
+              <h2 className="text-2xl font-bold mb-4 text-white">
+                Créer un compte
+              </h2>
+              <form onSubmit={handleCreateAccount} className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <input
+                    type="number"
+                    placeholder="HDV"
+                    value={accountForm.hdv}
+                    onChange={(e) =>
+                      setAccountForm({ ...accountForm, hdv: e.target.value })
+                    }
+                    className="p-2 rounded bg-white/10 text-white"
+                  />
+                  <input
+                    type="number"
+                    placeholder="Niveau"
+                    value={accountForm.level}
+                    onChange={(e) =>
+                      setAccountForm({ ...accountForm, level: e.target.value })
+                    }
+                    className="p-2 rounded bg-white/10 text-white"
+                  />
+                  <input
+                    type="number"
+                    placeholder="Prix"
+                    value={accountForm.price}
+                    onChange={(e) =>
+                      setAccountForm({ ...accountForm, price: e.target.value })
+                    }
+                    className="p-2 rounded bg-white/10 text-white"
+                  />
+                  <input
+                    type="text"
+                    placeholder="URL de l'image"
+                    value={accountForm.imageUrl}
+                    onChange={(e) =>
+                      setAccountForm({
+                        ...accountForm,
+                        imageUrl: e.target.value,
+                      })
+                    }
+                    className="p-2 rounded bg-white/10 text-white"
+                  />
+                  <textarea
+                    placeholder="Caractéristiques (une par ligne)"
+                    value={accountForm.features}
+                    onChange={(e) =>
+                      setAccountForm({
+                        ...accountForm,
+                        features: e.target.value,
+                      })
+                    }
+                    className="p-2 rounded bg-white/10 text-white md:col-span-2"
+                    rows={4}
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="w-full p-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                >
+                  Créer le compte
+                </button>
+              </form>
+            </div>
+
+            {/* Section liste des comptes */}
+            <div className="bg-white/5 p-6 rounded-xl">
+              <h2 className="text-2xl font-bold mb-4 text-white">
+                Liste des comptes
+              </h2>
+              <AccountsTable />
+            </div>
+          </>
+        ) : (
+          <>
+            {/* Section création d'utilisateur */}
+            <div className="bg-white/5 p-6 rounded-xl">
+              <h2 className="text-2xl font-bold mb-4 text-white">
+                Créer un utilisateur
+              </h2>
+              <form onSubmit={handleCreateUser} className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <input
+                    type="text"
+                    placeholder="Nom d'utilisateur"
+                    value={userForm.username}
+                    onChange={(e) =>
+                      setUserForm({ ...userForm, username: e.target.value })
+                    }
+                    className="p-2 rounded bg-white/10 text-white"
+                  />
+                  <input
+                    type="email"
+                    placeholder="Email"
+                    value={userForm.email}
+                    onChange={(e) =>
+                      setUserForm({ ...userForm, email: e.target.value })
+                    }
+                    className="p-2 rounded bg-white/10 text-white"
+                  />
+                  <input
+                    type="password"
+                    placeholder="Mot de passe"
+                    value={userForm.password}
+                    onChange={(e) =>
+                      setUserForm({ ...userForm, password: e.target.value })
+                    }
+                    className="p-2 rounded bg-white/10 text-white"
+                  />
+                  <select
+                    value={userForm.role}
+                    onChange={(e) =>
+                      setUserForm({ ...userForm, role: e.target.value })
+                    }
+                    className="p-2 rounded bg-white/10 text-white"
+                  >
+                    <option value="user">Utilisateur</option>
+                    <option value="admin">Administrateur</option>
+                  </select>
+                </div>
+                <button
+                  type="submit"
+                  className="w-full p-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                >
+                  Créer l'utilisateur
+                </button>
+              </form>
+            </div>
+
+            {/* Section liste des utilisateurs */}
+            <div className="bg-white/5 p-6 rounded-xl">
+              <h2 className="text-2xl font-bold mb-4 text-white">
+                Liste des utilisateurs
+              </h2>
+              <UsersTable />
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
