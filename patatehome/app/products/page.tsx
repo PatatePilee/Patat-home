@@ -1,10 +1,48 @@
 "use client";
-import { accounts, type Account } from "@/app/types/account";
-import Image from "next/image";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useState } from "react";
+import Image from "next/image";
+
+type Account = {
+  id: number;
+  hdv: number;
+  level: number;
+  price: number;
+  imageUrl: string;
+  features: string[];
+  status: string;
+  category?: string;
+  tags?: string[];
+};
 
 export default function ProductsPage() {
+  const [accounts, setAccounts] = useState<Account[]>([]);
+
+  useEffect(() => {
+    async function fetchAccounts() {
+      try {
+        const response = await fetch("/api/accounts");
+        if (response.ok) {
+          const data = await response.json();
+          const formattedAccounts = data.map((account: any) => ({
+            ...account,
+            imageUrl: account.imageUrl.startsWith("/")
+              ? account.imageUrl
+              : `/accounts/${account.imageUrl}`,
+            features: JSON.parse(account.features),
+            tags: [],
+            category: `hdv${account.hdv}`,
+          }));
+          setAccounts(formattedAccounts);
+        }
+      } catch (error) {
+        console.error("Erreur lors de la récupération des comptes:", error);
+      }
+    }
+
+    fetchAccounts();
+  }, []);
+
   const [searchQuery, setSearchQuery] = useState("");
   const [filters, setFilters] = useState({
     hdv: null as number | null,

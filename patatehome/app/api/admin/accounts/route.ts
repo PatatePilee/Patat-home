@@ -2,28 +2,36 @@ import { NextResponse } from "next/server";
 import { db } from "../../../../src/db";
 import { accounts } from "../../../../src/db/schema";
 
-export async function POST(request: Request) {
+export const POST = async (request: Request) => {
   try {
     const accountData = await request.json();
+    console.log("Données reçues:", accountData);
 
     const newAccount = await db
       .insert(accounts)
       .values({
-        ...accountData,
+        hdv: parseInt(accountData.hdv),
+        level: parseInt(accountData.level),
+        price: parseInt(accountData.price),
+        imageUrl: accountData.imageUrl,
         features: JSON.stringify(accountData.features),
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
+        status: accountData.status || "available",
+        createdAt: Math.floor(Date.now() / 1000),
+        updatedAt: Math.floor(Date.now() / 1000),
       })
       .returning();
+
+    console.log("Compte créé:", newAccount);
 
     return NextResponse.json({
       message: "Compte créé avec succès",
       account: newAccount[0],
     });
   } catch (error) {
+    console.error("Erreur détaillée:", error);
     return NextResponse.json(
       { error: "Erreur lors de la création du compte" },
       { status: 500 }
     );
   }
-}
+};

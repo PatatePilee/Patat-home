@@ -11,7 +11,7 @@
     "db:push": "drizzle-kit push:sqlite",
     "db:studio": "drizzle-kit studio",
     "create:admin": "tsx src/scripts/create-admin.ts",
-    "db:migrate": "tsx src/db/migrations/0001_accounts.ts",
+    "db:migrate": "tsx src/db/migrations/0002_create_accounts.ts",
     "db:migrate:accounts": "tsx src/db/migrations/0001_accounts.ts"
   },
   "dependencies": {

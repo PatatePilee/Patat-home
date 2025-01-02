@@ -1,9 +1,29 @@
 import Image from "next/image";
-import { getFeaturedAccounts } from "./types/account";
 import Link from "next/link";
+import { db } from "../src/db";
+import { accounts } from "../src/db/schema";
+import AccountImage from "./components/AccountImage";
 
-export default function Home() {
-  const featuredAccounts = getFeaturedAccounts();
+async function getAccounts() {
+  try {
+    const allAccounts = await db.select().from(accounts);
+    return allAccounts;
+  } catch (error) {
+    console.error("Erreur lors de la récupération des comptes:", error);
+    return [];
+  }
+}
+
+export default async function Home() {
+  const accounts = await getAccounts();
+  // Sélectionner les 3 premiers comptes disponibles pour la section "en vedette"
+  const featuredAccounts = accounts
+    .filter((account) => account.status === "available")
+    .slice(0, 3)
+    .map((account) => ({
+      ...account,
+      features: JSON.parse(account.features),
+    }));
 
   return (
     <div className="min-h-screen">
@@ -46,11 +66,9 @@ export default function Home() {
               className="group border border-foreground/10 rounded-xl p-8 hover:shadow-2xl transition-all duration-500 hover:shadow-blue-500/10 transform hover:scale-105 bg-white/5"
             >
               <div className="relative aspect-video mb-6 rounded-lg overflow-hidden">
-                <Image
+                <AccountImage
                   src={account.imageUrl}
                   alt={`HDV ${account.hdv}`}
-                  fill
-                  className="object-cover group-hover:scale-110 transition-transform duration-500"
                 />
               </div>
               <h3 className="text-2xl font-bold mb-4 group-hover:text-blue-500 transition-colors">

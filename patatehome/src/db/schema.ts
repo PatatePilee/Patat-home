@@ -20,10 +20,6 @@ export const accounts = sqliteTable("accounts", {
   imageUrl: text("image_url").notNull(),
   features: text("features").notNull(),
   status: text("status").notNull().default("available"),
-  createdAt: integer("created_at")
-    .notNull()
-    .default(sql`(strftime('%s', 'now'))`),
-  updatedAt: integer("updated_at")
-    .notNull()
-    .default(sql`(strftime('%s', 'now'))`),
+  createdAt: integer("created_at").notNull(),
+  updatedAt: integer("updated_at").notNull()
 });
