@@ -1,13 +1,13 @@
 export type Account = {
-  id: string;
+  id: number;
   hdv: number;
   level: number;
   price: number;
   imageUrl: string;
-  additionalImages?: string[];
-  features: string[];
-  category: string;
-  tags: string[];
+  features: string[] | string;
+  status: string;
+  createdAt: number;
+  updatedAt: number;
 };
 
 export const accounts: Account[] = [

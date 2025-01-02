@@ -1,6 +1,7 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Account } from "@/app/types/account";
+import Image from "next/image";
 
 type EditingAccount = {
   id: number;
@@ -12,15 +13,48 @@ type EditingAccount = {
   status: string;
 };
 
-export default function AccountsTable({
-  initialAccounts,
-}: {
-  initialAccounts: Account[];
-}) {
-  const [accounts, setAccounts] = useState(initialAccounts);
+export default function AccountsTable() {
+  const [accounts, setAccounts] = useState<Account[]>([]);
   const [editingAccount, setEditingAccount] = useState<EditingAccount | null>(
     null
   );
+
+  useEffect(() => {
+    const fetchAccounts = async () => {
+      try {
+        const response = await fetch("/api/accounts");
+        if (response.ok) {
+          const data = await response.json();
+          setAccounts(
+            data.map((account: Account) => ({
+              ...account,
+              features: Array.isArray(account.features)
+                ? account.features
+                : account.features.split("\n"),
+            }))
+          );
+        }
+      } catch (error) {
+        console.error("Erreur lors de la récupération des comptes:", error);
+      }
+    };
+
+    fetchAccounts();
+  }, []);
+
+  const handleStartEdit = (account: Account) => {
+    setEditingAccount({
+      id: account.id,
+      hdv: account.hdv.toString(),
+      level: account.level.toString(),
+      price: account.price.toString(),
+      imageUrl: account.imageUrl,
+      features: Array.isArray(account.features)
+        ? account.features.join("\n")
+        : account.features,
+      status: account.status,
+    });
+  };
 
   const handleDelete = async (id: number) => {
     if (confirm("Êtes-vous sûr de vouloir supprimer ce compte ?")) {
@@ -219,17 +253,7 @@ export default function AccountsTable({
                 ) : (
                   <div className="space-x-2">
                     <button
-                      onClick={() =>
-                        setEditingAccount({
-                          id: account.id,
-                          hdv: account.hdv.toString(),
-                          level: account.level.toString(),
-                          price: account.price.toString(),
-                          imageUrl: account.imageUrl,
-                          features: JSON.parse(account.features).join("\n"),
-                          status: account.status,
-                        })
-                      }
+                      onClick={() => handleStartEdit(account)}
                       className="px-3 py-1 bg-blue-600 rounded hover:bg-blue-700"
                     >
                       Modifier
