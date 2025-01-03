@@ -1,16 +1,58 @@
 "use client";
-import { accounts } from "@/app/types/account";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+
+type Account = {
+  id: number;
+  hdv: number;
+  level: number;
+  price: number;
+  imageUrl: string;
+  features: string[];
+  status: string;
+  additionalImages?: string[];
+};
 
 export default function AccountDetailPage({
   params,
 }: {
   params: { id: string };
 }) {
-  const account = accounts.find((a) => a.id === params.id);
+  const [account, setAccount] = useState<Account | null>(null);
   const [selectedImage, setSelectedImage] = useState(0);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchAccount = async () => {
+      try {
+        const response = await fetch(`/api/accounts/${params.id}`);
+        if (response.ok) {
+          const data = await response.json();
+          setAccount({
+            ...data,
+            features: JSON.parse(data.features),
+          });
+        }
+      } catch (error) {
+        console.error("Erreur lors de la récupération du compte:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAccount();
+  }, [params.id]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-3xl font-bold mb-4">Chargement...</h1>
+        </div>
+      </div>
+    );
+  }
 
   if (!account) {
     return (
@@ -25,7 +67,7 @@ export default function AccountDetailPage({
     );
   }
 
-  const allImages = [account.imageUrl, ...(account.additionalImages || [])];
+  const allImages = [account.imageUrl];
 
   return (
     <div className="min-h-screen p-8">

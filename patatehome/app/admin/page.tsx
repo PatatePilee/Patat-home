@@ -2,9 +2,12 @@
 import { useState } from "react";
 import AccountsTable from "./components/AccountsTable";
 import UsersTable from "./components/UsersTable";
+import ReviewsTable from "./components/ReviewsTable";
 
 export default function AdminPage() {
-  const [activeTab, setActiveTab] = useState<"accounts" | "users">("accounts");
+  const [activeTab, setActiveTab] = useState<"accounts" | "users" | "reviews">(
+    "accounts"
+  );
   const [accountForm, setAccountForm] = useState({
     hdv: "",
     level: "",
@@ -19,6 +22,12 @@ export default function AdminPage() {
     email: "",
     password: "",
     role: "user",
+  });
+
+  const [reviewForm, setReviewForm] = useState({
+    username: "",
+    avatarUrl: "",
+    message: "",
   });
 
   const handleCreateAccount = async (e: React.FormEvent) => {
@@ -82,6 +91,39 @@ export default function AdminPage() {
     }
   };
 
+  const handleCreateReview = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const response = await fetch("/api/admin/reviews", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ...reviewForm,
+          date: Date.now(),
+        }),
+      });
+
+      if (response.ok) {
+        setReviewForm({
+          username: "",
+          avatarUrl: "",
+          message: "",
+        });
+        const reviewsTableElement = document.querySelector(
+          '[data-component="reviews-table"]'
+        );
+        if (reviewsTableElement) {
+          const event = new Event("reload");
+          reviewsTableElement.dispatchEvent(event);
+        }
+      }
+    } catch (error) {
+      console.error("Erreur lors de la création:", error);
+    }
+  };
+
   return (
     <div className="min-h-screen p-8 bg-black">
       <div className="max-w-7xl mx-auto space-y-8">
@@ -109,9 +151,74 @@ export default function AdminPage() {
           >
             Utilisateurs
           </button>
+          <button
+            onClick={() => setActiveTab("reviews")}
+            className={`px-4 py-2 ${
+              activeTab === "reviews"
+                ? "text-blue-500 border-b-2 border-blue-500"
+                : "text-white/60 hover:text-white"
+            }`}
+          >
+            Avis
+          </button>
         </div>
 
-        {activeTab === "accounts" ? (
+        {activeTab === "reviews" ? (
+          <>
+            <div className="bg-white/5 p-6 rounded-xl">
+              <h2 className="text-2xl font-bold mb-4 text-white">
+                Créer un avis
+              </h2>
+              <form onSubmit={handleCreateReview} className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <input
+                    type="text"
+                    placeholder="Nom d'utilisateur"
+                    value={reviewForm.username}
+                    onChange={(e) =>
+                      setReviewForm({ ...reviewForm, username: e.target.value })
+                    }
+                    className="p-2 rounded bg-white/10 text-white"
+                  />
+                  <input
+                    type="text"
+                    placeholder="URL de l'avatar"
+                    value={reviewForm.avatarUrl}
+                    onChange={(e) =>
+                      setReviewForm({
+                        ...reviewForm,
+                        avatarUrl: e.target.value,
+                      })
+                    }
+                    className="p-2 rounded bg-white/10 text-white"
+                  />
+                  <textarea
+                    placeholder="Message"
+                    value={reviewForm.message}
+                    onChange={(e) =>
+                      setReviewForm({ ...reviewForm, message: e.target.value })
+                    }
+                    className="p-2 rounded bg-white/10 text-white md:col-span-2"
+                    rows={4}
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="w-full p-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                >
+                  Créer l'avis
+                </button>
+              </form>
+            </div>
+
+            <div className="bg-white/5 p-6 rounded-xl">
+              <h2 className="text-2xl font-bold mb-4 text-white">
+                Liste des avis
+              </h2>
+              <ReviewsTable />
+            </div>
+          </>
+        ) : activeTab === "accounts" ? (
           <>
             {/* Section création de compte */}
             <div className="bg-white/5 p-6 rounded-xl">

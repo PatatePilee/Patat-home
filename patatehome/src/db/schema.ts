@@ -21,5 +21,14 @@ export const accounts = sqliteTable("accounts", {
   features: text("features").notNull(),
   status: text("status").notNull().default("available"),
   createdAt: integer("created_at").notNull(),
-  updatedAt: integer("updated_at").notNull()
+  updatedAt: integer("updated_at").notNull(),
+});
+
+export const reviews = sqliteTable("reviews", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  username: text("username").notNull(),
+  avatarUrl: text("avatar_url").notNull(),
+  message: text("message").notNull(),
+  date: integer("date").notNull(),
+  createdAt: integer("created_at").notNull(),
 });

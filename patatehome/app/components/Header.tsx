@@ -60,6 +60,12 @@ export default function Header() {
             >
               Discord
             </Link>
+            <Link
+              href="/reviews"
+              className="hover:text-blue-500 transition-colors"
+            >
+              Avis
+            </Link>
             {isAdmin && (
               <Link
                 href="/admin"
