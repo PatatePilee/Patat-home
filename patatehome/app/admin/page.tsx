@@ -3,11 +3,12 @@ import { useState } from "react";
 import AccountsTable from "./components/AccountsTable";
 import UsersTable from "./components/UsersTable";
 import ReviewsTable from "./components/ReviewsTable";
+import GiveawayTable from "./components/GiveawayTable";
 
 export default function AdminPage() {
-  const [activeTab, setActiveTab] = useState<"accounts" | "users" | "reviews">(
-    "accounts"
-  );
+  const [activeTab, setActiveTab] = useState<
+    "accounts" | "users" | "reviews" | "giveaway"
+  >("accounts");
   const [accountForm, setAccountForm] = useState({
     hdv: "",
     level: "",
@@ -28,6 +29,17 @@ export default function AdminPage() {
     username: "",
     avatarUrl: "",
     message: "",
+  });
+
+  const [giveawayForm, setGiveawayForm] = useState({
+    title: "",
+    description: "",
+    imageUrl: "",
+    prizes: "",
+    requirements: "",
+    startDate: "",
+    endDate: "",
+    isActive: false,
   });
 
   const handleCreateAccount = async (e: React.FormEvent) => {
@@ -124,6 +136,64 @@ export default function AdminPage() {
     }
   };
 
+  const handleCreateGiveaway = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    // Validate required fields before submission
+    if (
+      !giveawayForm.title ||
+      !giveawayForm.description ||
+      !giveawayForm.imageUrl ||
+      !giveawayForm.prizes ||
+      !giveawayForm.requirements ||
+      !giveawayForm.startDate ||
+      !giveawayForm.endDate
+    ) {
+      alert("Tous les champs sont obligatoires");
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/admin/giveaways", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          title: giveawayForm.title,
+          description: giveawayForm.description,
+          imageUrl: giveawayForm.imageUrl,
+          prizes: giveawayForm.prizes.split("\n"),
+          requirements: giveawayForm.requirements.split("\n"),
+          startDate: giveawayForm.startDate,
+          endDate: giveawayForm.endDate,
+          isActive: giveawayForm.isActive,
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.details || "Une erreur est survenue");
+      }
+
+      setGiveawayForm({
+        title: "",
+        description: "",
+        imageUrl: "",
+        prizes: "",
+        requirements: "",
+        startDate: "",
+        endDate: "",
+        isActive: false,
+      });
+
+      window.location.reload();
+    } catch (error) {
+      console.error("Erreur lors de la création du giveaway:", error);
+      alert(error.message);
+    }
+  };
+
   return (
     <div className="min-h-screen p-8 bg-black">
       <div className="max-w-7xl mx-auto space-y-8">
@@ -161,9 +231,140 @@ export default function AdminPage() {
           >
             Avis
           </button>
+          <button
+            onClick={() => setActiveTab("giveaway")}
+            className={`px-4 py-2 ${
+              activeTab === "giveaway"
+                ? "text-blue-500 border-b-2 border-blue-500"
+                : "text-white/60 hover:text-white"
+            }`}
+          >
+            Giveaway
+          </button>
         </div>
 
-        {activeTab === "reviews" ? (
+        {activeTab === "giveaway" ? (
+          <>
+            <div className="bg-white/5 p-6 rounded-xl">
+              <h2 className="text-2xl font-bold mb-4 text-white">
+                Créer un giveaway
+              </h2>
+              <form onSubmit={handleCreateGiveaway} className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <input
+                    type="text"
+                    placeholder="Titre"
+                    value={giveawayForm.title}
+                    onChange={(e) =>
+                      setGiveawayForm({
+                        ...giveawayForm,
+                        title: e.target.value,
+                      })
+                    }
+                    className="p-2 rounded bg-white/10 text-white"
+                  />
+                  <input
+                    type="text"
+                    placeholder="URL de l'image"
+                    value={giveawayForm.imageUrl}
+                    onChange={(e) =>
+                      setGiveawayForm({
+                        ...giveawayForm,
+                        imageUrl: e.target.value,
+                      })
+                    }
+                    className="p-2 rounded bg-white/10 text-white"
+                  />
+                  <textarea
+                    placeholder="Description"
+                    value={giveawayForm.description}
+                    onChange={(e) =>
+                      setGiveawayForm({
+                        ...giveawayForm,
+                        description: e.target.value,
+                      })
+                    }
+                    className="p-2 rounded bg-white/10 text-white md:col-span-2"
+                    rows={4}
+                  />
+                  <textarea
+                    placeholder="Lots à gagner (un par ligne)"
+                    value={giveawayForm.prizes}
+                    onChange={(e) =>
+                      setGiveawayForm({
+                        ...giveawayForm,
+                        prizes: e.target.value,
+                      })
+                    }
+                    className="p-2 rounded bg-white/10 text-white"
+                    rows={4}
+                  />
+                  <textarea
+                    placeholder="Conditions de participation (une par ligne)"
+                    value={giveawayForm.requirements}
+                    onChange={(e) =>
+                      setGiveawayForm({
+                        ...giveawayForm,
+                        requirements: e.target.value,
+                      })
+                    }
+                    className="p-2 rounded bg-white/10 text-white"
+                    rows={4}
+                  />
+                  <input
+                    type="datetime-local"
+                    value={giveawayForm.startDate}
+                    onChange={(e) =>
+                      setGiveawayForm({
+                        ...giveawayForm,
+                        startDate: e.target.value,
+                      })
+                    }
+                    className="p-2 rounded bg-white/10 text-white"
+                  />
+                  <input
+                    type="datetime-local"
+                    value={giveawayForm.endDate}
+                    onChange={(e) =>
+                      setGiveawayForm({
+                        ...giveawayForm,
+                        endDate: e.target.value,
+                      })
+                    }
+                    className="p-2 rounded bg-white/10 text-white"
+                  />
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      checked={giveawayForm.isActive}
+                      onChange={(e) =>
+                        setGiveawayForm({
+                          ...giveawayForm,
+                          isActive: e.target.checked,
+                        })
+                      }
+                      className="rounded bg-white/10"
+                    />
+                    <label className="text-white">Activer le giveaway</label>
+                  </div>
+                </div>
+                <button
+                  type="submit"
+                  className="w-full p-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                >
+                  Créer le giveaway
+                </button>
+              </form>
+            </div>
+
+            <div className="bg-white/5 p-6 rounded-xl">
+              <h2 className="text-2xl font-bold mb-4 text-white">
+                Liste des giveaways
+              </h2>
+              <GiveawayTable />
+            </div>
+          </>
+        ) : activeTab === "reviews" ? (
           <>
             <div className="bg-white/5 p-6 rounded-xl">
               <h2 className="text-2xl font-bold mb-4 text-white">

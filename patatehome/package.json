@@ -11,13 +11,15 @@
     "db:push": "drizzle-kit push:sqlite",
     "db:studio": "drizzle-kit studio",
     "create:admin": "tsx src/scripts/create-admin.ts",
-    "db:migrate": "tsx src/db/migrations/0002_create_reviews.ts",
+    "db:migrate": "tsx src/db/migrations/0003_giveaway.ts",
     "db:migrate:accounts": "tsx src/db/migrations/0001_accounts.ts"
   },
   "dependencies": {
+    "@heroicons/react": "^2.2.0",
     "@libsql/client": "^0.5.3",
     "bcrypt": "^5.1.1",
     "drizzle-orm": "^0.29.3",
+    "framer-motion": "^11.15.0",
     "geist": "^1.2.0",
     "next": "14.0.4",
     "react": "^18",
@@ -33,7 +35,7 @@
     "eslint-config-next": "14.0.4",
     "postcss": "^8",
     "tailwindcss": "^3.4.1",
-    "typescript": "^5",
-    "tsx": "^4.7.0"
+    "tsx": "^4.7.0",
+    "typescript": "^5"
   }
 }

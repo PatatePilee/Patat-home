@@ -3,6 +3,7 @@ import Link from "next/link";
 import { db } from "../src/db";
 import { accounts } from "../src/db/schema";
 import AccountImage from "./components/AccountImage";
+import FeaturedCarousel from "./components/FeaturedCarousel";
 
 async function getAccounts() {
   try {
@@ -55,45 +56,12 @@ export default async function Home() {
       </section>
 
       {/* Comptes en vedette */}
-      <section className="max-w-7xl mx-auto py-24 px-4">
-        <h2 className="text-4xl font-bold text-center mb-16 hover:text-blue-500 transition-colors duration-300">
-          Comptes en vedette
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-          {featuredAccounts.map((account) => (
-            <div
-              key={account.id}
-              className="group border border-foreground/10 rounded-xl p-8 hover:shadow-2xl transition-all duration-500 hover:shadow-blue-500/10 transform hover:scale-105 bg-white/5"
-            >
-              <div className="relative aspect-video mb-6 rounded-lg overflow-hidden">
-                <AccountImage
-                  src={account.imageUrl}
-                  alt={`HDV ${account.hdv}`}
-                />
-              </div>
-              <h3 className="text-2xl font-bold mb-4 group-hover:text-blue-500 transition-colors">
-                HDV {account.hdv} - Niveau {account.level}
-              </h3>
-              <ul className="mb-6 space-y-2">
-                {account.features.map((feature, index) => (
-                  <li key={index} className="text-white/80">
-                    • {feature}
-                  </li>
-                ))}
-              </ul>
-              <div className="flex justify-between items-center">
-                <span className="text-2xl font-bold text-blue-500">
-                  {account.price} €
-                </span>
-                <Link
-                  href={`/products/${account.id}`}
-                  className="text-blue-500 hover:text-blue-400 transition-colors group-hover:translate-x-2 transform transition-transform duration-300"
-                >
-                  Voir les détails →
-                </Link>
-              </div>
-            </div>
-          ))}
+      <section className="py-24">
+        <div className="max-w-7xl mx-auto px-4">
+          <h2 className="text-4xl font-bold text-center mb-12">
+            Comptes en Vedette
+          </h2>
+          <FeaturedCarousel accounts={featuredAccounts} />
         </div>
       </section>
 

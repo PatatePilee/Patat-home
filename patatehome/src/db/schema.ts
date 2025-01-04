@@ -1,4 +1,4 @@
-import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
+import { sqliteTable, text, integer, boolean } from "drizzle-orm/sqlite-core";
 import { sql } from "drizzle-orm";
 
 export const users = sqliteTable("users", {
@@ -31,4 +31,29 @@ export const reviews = sqliteTable("reviews", {
   message: text("message").notNull(),
   date: integer("date").notNull(),
   createdAt: integer("created_at").notNull(),
+});
+
+export const giveaways = sqliteTable("giveaways", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  imageUrl: text("image_url").notNull(),
+  prizes: text("prizes").notNull(),
+  requirements: text("requirements").notNull(),
+  isActive: integer("is_active", { mode: "boolean" }).notNull().default(false),
+  startDate: integer("start_date", { mode: "timestamp" }).notNull(),
+  endDate: integer("end_date", { mode: "timestamp" }).notNull(),
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .notNull()
+    .default(new Date()),
+});
+
+export const giveawayEntries = sqliteTable("giveaway_entries", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  giveawayId: integer("giveaway_id").references(() => giveaways.id),
+  email: text("email").notNull(),
+  discord: text("discord").notNull(),
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .notNull()
+    .default(new Date()),
 });
