@@ -50,10 +50,21 @@ export const giveaways = sqliteTable("giveaways", {
 
 export const giveawayEntries = sqliteTable("giveaway_entries", {
   id: integer("id").primaryKey({ autoIncrement: true }),
-  giveawayId: integer("giveaway_id").references(() => giveaways.id),
+  giveawayId: integer("giveaway_id")
+    .notNull()
+    .references(() => giveaways.id),
   email: text("email").notNull(),
   discord: text("discord").notNull(),
-  createdAt: integer("created_at", { mode: "timestamp" })
+  createdAt: integer("created_at")
     .notNull()
-    .default(new Date()),
+    .default(sql`(unixepoch())`),
+});
+
+export const pageSettings = sqliteTable("page_settings", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  pageName: text("page_name").notNull().unique(),
+  isActive: integer("is_active").notNull().default(1),
+  updatedAt: integer("updated_at")
+    .notNull()
+    .default(sql`(unixepoch())`),
 });

@@ -11,10 +11,11 @@
     "db:push": "drizzle-kit push:sqlite",
     "db:studio": "drizzle-kit studio",
     "create:admin": "tsx src/scripts/create-admin.ts",
-    "db:migrate": "tsx src/db/migrations/0003_giveaway.ts",
+    "db:migrate": "tsx src/db/migrate.ts",
     "db:migrate:accounts": "tsx src/db/migrations/0001_accounts.ts"
   },
   "dependencies": {
+    "@headlessui/react": "^2.2.0",
     "@heroicons/react": "^2.2.0",
     "@libsql/client": "^0.5.3",
     "bcrypt": "^5.1.1",

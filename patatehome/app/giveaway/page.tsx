@@ -1,18 +1,27 @@
 "use client";
 import { useState, useEffect } from "react";
-import Image from "next/image";
 import Link from "next/link";
-import { getGiveaway } from "@/app/actions/getGiveaway";
 
 export default function GiveawayPage() {
-  const [giveaway, setGiveaway] = useState(null);
+  const [giveaway, setGiveaway] = useState<any>(null);
   const [email, setEmail] = useState("");
   const [discord, setDiscord] = useState("");
+  const [submitted, setSubmitted] = useState(false);
 
   useEffect(() => {
     const loadGiveaway = async () => {
-      const data = await getGiveaway();
-      setGiveaway(data);
+      try {
+        const response = await fetch("/api/giveaways/active");
+        if (!response.ok) throw new Error("Erreur serveur");
+        const data = await response.json();
+        if (data) {
+          data.prizes = JSON.parse(data.prizes);
+          data.requirements = JSON.parse(data.requirements);
+        }
+        setGiveaway(data);
+      } catch (error) {
+        console.error("Erreur:", error);
+      }
     };
     loadGiveaway();
   }, []);
@@ -36,48 +45,74 @@ export default function GiveawayPage() {
     );
   }
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Logique d'inscription au giveaway
+    try {
+      const response = await fetch("/api/giveaways/entries", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          giveawayId: giveaway.id,
+          email,
+          discord,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Erreur lors de l'inscription");
+      }
+
+      setSubmitted(true);
+    } catch (error) {
+      console.error("Erreur:", error);
+      alert("Une erreur est survenue lors de l'inscription");
+    }
   };
+
+  if (submitted) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-4xl font-bold mb-4">Inscription confirmée !</h1>
+          <p className="text-xl text-white/80 mb-8">
+            Merci de votre participation. Le gagnant sera annoncé sur Discord.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen py-24">
       <div className="max-w-4xl mx-auto px-4">
         <div className="bg-white/5 rounded-2xl p-8 backdrop-blur-sm">
-          <div className="relative aspect-video mb-8 rounded-xl overflow-hidden">
-            <Image
+          <div className="aspect-video relative mb-8">
+            <img
               src={giveaway.imageUrl}
-              alt="Giveaway"
-              fill
-              className="object-cover"
+              alt={giveaway.title}
+              className="rounded-xl w-full h-full object-cover"
             />
           </div>
 
-          <h1 className="text-4xl font-bold mb-4">{giveaway.title}</h1>
-          <p className="text-xl text-white/80 mb-8">{giveaway.description}</p>
+          <h1 className="text-3xl font-bold mb-4">{giveaway.title}</h1>
+          <p className="text-white/80 mb-8">{giveaway.description}</p>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-            <div className="space-y-4">
-              <h2 className="text-2xl font-bold">À gagner</h2>
-              <ul className="space-y-2">
-                {giveaway.prizes.map((prize, index) => (
-                  <li key={index} className="flex items-center space-x-2">
-                    <span className="text-blue-500">•</span>
-                    <span>{prize}</span>
-                  </li>
+          <div className="grid md:grid-cols-2 gap-8 mb-8">
+            <div>
+              <h2 className="text-xl font-semibold mb-4">À gagner :</h2>
+              <ul className="list-disc list-inside space-y-2">
+                {giveaway.prizes.map((prize: string, index: number) => (
+                  <li key={index}>{prize}</li>
                 ))}
               </ul>
             </div>
-
-            <div className="space-y-4">
-              <h2 className="text-2xl font-bold">Comment participer</h2>
-              <ul className="space-y-2">
-                {giveaway.requirements.map((req, index) => (
-                  <li key={index} className="flex items-center space-x-2">
-                    <span className="text-blue-500">•</span>
-                    <span>{req}</span>
-                  </li>
+            <div>
+              <h2 className="text-xl font-semibold mb-4">Conditions :</h2>
+              <ul className="list-disc list-inside space-y-2">
+                {giveaway.requirements.map((req: string, index: number) => (
+                  <li key={index}>{req}</li>
                 ))}
               </ul>
             </div>
@@ -89,22 +124,22 @@ export default function GiveawayPage() {
               placeholder="Votre email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full p-4 rounded-lg bg-white/10 border border-white/20"
               required
+              className="w-full p-3 rounded bg-white/10 text-white"
             />
             <input
               type="text"
-              placeholder="Votre Discord (exemple: username#0000)"
+              placeholder="Votre pseudo Discord"
               value={discord}
               onChange={(e) => setDiscord(e.target.value)}
-              className="w-full p-4 rounded-lg bg-white/10 border border-white/20"
               required
+              className="w-full p-3 rounded bg-white/10 text-white"
             />
             <button
               type="submit"
-              className="w-full bg-blue-600 text-white py-4 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+              className="w-full p-3 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
             >
-              Participer au giveaway
+              Participer
             </button>
           </form>
         </div>

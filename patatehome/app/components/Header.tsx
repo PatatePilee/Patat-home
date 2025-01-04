@@ -61,10 +61,28 @@ export default function Header() {
               Discord
             </Link>
             <Link
+              href="/giveaway"
+              className="hover:text-blue-500 transition-colors"
+            >
+              Giveaway
+            </Link>
+            <Link
               href="/reviews"
               className="hover:text-blue-500 transition-colors"
             >
               Avis
+            </Link>
+            <Link
+              href="/feed"
+              className="hover:text-blue-500 transition-colors"
+            >
+              Feed
+            </Link>
+            <Link
+              href="/contact"
+              className="hover:text-blue-500 transition-colors"
+            >
+              Contact
             </Link>
             {isAdmin && (
               <Link

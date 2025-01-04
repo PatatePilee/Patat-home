@@ -9,8 +9,13 @@ const db = drizzle(client);
 
 async function main() {
   try {
+    // Suppression des tables existantes pour repartir de zéro
+    await client.execute(`DROP TABLE IF EXISTS giveaway_entries;`);
+    await client.execute(`DROP TABLE IF EXISTS giveaways;`);
+
+    // Création de la table giveaways
     await client.execute(`
-      CREATE TABLE IF NOT EXISTS giveaways (
+      CREATE TABLE giveaways (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         title TEXT NOT NULL,
         description TEXT NOT NULL,
@@ -22,25 +27,26 @@ async function main() {
         end_date INTEGER NOT NULL,
         created_at INTEGER NOT NULL DEFAULT (unixepoch())
       );
+    `);
 
-      CREATE TABLE IF NOT EXISTS giveaway_entries (
+    // Création de la table giveaway_entries
+    await client.execute(`
+      CREATE TABLE giveaway_entries (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         giveaway_id INTEGER NOT NULL,
         email TEXT NOT NULL,
         discord TEXT NOT NULL,
         created_at INTEGER NOT NULL DEFAULT (unixepoch()),
-        FOREIGN KEY (giveaway_id) REFERENCES giveaways(id)
+        FOREIGN KEY (giveaway_id) REFERENCES giveaways(id) ON DELETE CASCADE
       );
     `);
 
     console.log("Tables giveaways et giveaway_entries créées avec succès!");
+    process.exit(0);
   } catch (error) {
     console.error("Erreur lors de la création des tables:", error);
     process.exit(1);
   }
 }
 
-main().catch((err) => {
-  console.error("Error:", err);
-  process.exit(1);
-});
+main();
