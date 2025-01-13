@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "../../../../src/db";
-import { accounts } from "../../../../src/db/schema";
+import { accounts, accountAdditionalImages } from "../../../../src/db/schema";
 
 export const POST = async (request: Request) => {
   try {
@@ -22,6 +22,21 @@ export const POST = async (request: Request) => {
       .returning();
 
     console.log("Compte créé:", newAccount);
+
+    if (accountData.additionalImages?.length > 0) {
+      const additionalImagesData = accountData.additionalImages
+        .filter((url: string) => url.trim() !== "")
+        .map((url: string, index: number) => ({
+          accountId: newAccount[0].id,
+          imageUrl: url,
+          displayOrder: index,
+          createdAt: Math.floor(Date.now() / 1000),
+        }));
+
+      if (additionalImagesData.length > 0) {
+        await db.insert(accountAdditionalImages).values(additionalImagesData);
+      }
+    }
 
     return NextResponse.json({
       message: "Compte créé avec succès",

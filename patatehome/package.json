@@ -12,7 +12,7 @@
     "db:studio": "drizzle-kit studio",
     "create:admin": "tsx src/scripts/create-admin.ts",
     "db:migrate": "tsx src/db/migrate.ts",
-    "db:migrate:accounts": "tsx src/db/migrations/0001_accounts.ts"
+    "db:migrate:accounts": "tsx src/db/migrations/0007_modify_accounts_images.ts"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.0",

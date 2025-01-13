@@ -24,6 +24,21 @@ export const accounts = sqliteTable("accounts", {
   updatedAt: integer("updated_at").notNull(),
 });
 
+export const accountAdditionalImages = sqliteTable(
+  "account_additional_images",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    accountId: integer("account_id")
+      .notNull()
+      .references(() => accounts.id, { onDelete: "cascade" }),
+    imageUrl: text("image_url").notNull(),
+    displayOrder: integer("display_order").notNull().default(0),
+    createdAt: integer("created_at")
+      .notNull()
+      .default(sql`(unixepoch())`),
+  }
+);
+
 export const reviews = sqliteTable("reviews", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   username: text("username").notNull(),

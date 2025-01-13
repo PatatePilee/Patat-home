@@ -240,11 +240,15 @@ export default function ProductsPage() {
                       <h3 className="text-xl font-bold mb-2">
                         HDV {account.hdv} - Niveau {account.level}
                       </h3>
-                      <ul className="mb-4 space-y-1">
-                        {account.features.map((feature, index) => (
-                          <li key={index}>• {feature}</li>
-                        ))}
-                      </ul>
+                      <div className="mb-4 truncate text-white/80">
+                        • {account.features[0]}
+                        {account.features.length > 1 && (
+                          <span className="text-sm text-white/60">
+                            {" "}
+                            (+{account.features.length - 1} autres)
+                          </span>
+                        )}
+                      </div>
                       <div className="flex justify-between items-center">
                         <span className="text-xl font-bold">
                           {account.price} €

@@ -18,6 +18,7 @@ export default function AdminPage() {
     level: "",
     price: "",
     imageUrl: "",
+    additionalImages: [""],
     features: "",
     status: "available",
   });
@@ -66,6 +67,7 @@ export default function AdminPage() {
           level: "",
           price: "",
           imageUrl: "",
+          additionalImages: [""],
           features: "",
           status: "available",
         });
@@ -196,6 +198,29 @@ export default function AdminPage() {
       console.error("Erreur lors de la création du giveaway:", error);
       alert(error.message);
     }
+  };
+
+  const handleAddImageField = () => {
+    setAccountForm((prev) => ({
+      ...prev,
+      additionalImages: [...prev.additionalImages, ""],
+    }));
+  };
+
+  const handleImageChange = (index: number, value: string) => {
+    const newAdditionalImages = [...accountForm.additionalImages];
+    newAdditionalImages[index] = value;
+    setAccountForm((prev) => ({
+      ...prev,
+      additionalImages: newAdditionalImages,
+    }));
+  };
+
+  const handleRemoveImageField = (index: number) => {
+    setAccountForm((prev) => ({
+      ...prev,
+      additionalImages: prev.additionalImages.filter((_, i) => i !== index),
+    }));
   };
 
   return (
@@ -459,18 +484,54 @@ export default function AdminPage() {
                     }
                     className="p-2 rounded bg-white/10 text-white"
                   />
-                  <input
-                    type="text"
-                    placeholder="URL de l'image"
-                    value={accountForm.imageUrl}
-                    onChange={(e) =>
-                      setAccountForm({
-                        ...accountForm,
-                        imageUrl: e.target.value,
-                      })
-                    }
-                    className="p-2 rounded bg-white/10 text-white"
-                  />
+                  <div className="md:col-span-2 space-y-4">
+                    <div className="flex items-center space-x-4">
+                      <input
+                        type="text"
+                        placeholder="URL de l'image principale"
+                        value={accountForm.imageUrl}
+                        onChange={(e) =>
+                          setAccountForm({
+                            ...accountForm,
+                            imageUrl: e.target.value,
+                          })
+                        }
+                        className="flex-1 p-2 rounded bg-white/10 text-white"
+                      />
+                      <span className="text-white/60">Image principale</span>
+                    </div>
+
+                    {accountForm.additionalImages.map((url, index) => (
+                      <div key={index} className="flex items-center space-x-4">
+                        <input
+                          type="text"
+                          placeholder={`URL de l'image additionnelle ${
+                            index + 1
+                          }`}
+                          value={url}
+                          onChange={(e) =>
+                            handleImageChange(index, e.target.value)
+                          }
+                          className="flex-1 p-2 rounded bg-white/10 text-white"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveImageField(index)}
+                          className="p-2 text-red-500 hover:text-red-400"
+                        >
+                          Supprimer
+                        </button>
+                      </div>
+                    ))}
+
+                    <button
+                      type="button"
+                      onClick={handleAddImageField}
+                      className="w-full p-2 bg-white/10 text-white rounded hover:bg-white/20"
+                    >
+                      + Ajouter une image
+                    </button>
+                  </div>
                   <textarea
                     placeholder="Caractéristiques (une par ligne)"
                     value={accountForm.features}

@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -10,8 +10,8 @@ type Account = {
   price: number;
   imageUrl: string;
   features: string[];
-  status: string;
   additionalImages?: string[];
+  status: string;
 };
 
 export default function AccountDetailPage({
@@ -21,53 +21,35 @@ export default function AccountDetailPage({
 }) {
   const [account, setAccount] = useState<Account | null>(null);
   const [selectedImage, setSelectedImage] = useState(0);
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const fetchAccount = async () => {
+    async function fetchAccount() {
       try {
         const response = await fetch(`/api/accounts/${params.id}`);
         if (response.ok) {
           const data = await response.json();
           setAccount({
             ...data,
-            features: JSON.parse(data.features),
+            features: Array.isArray(data.features)
+              ? data.features
+              : JSON.parse(data.features),
           });
         }
       } catch (error) {
         console.error("Erreur lors de la récupération du compte:", error);
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
-    };
+    }
 
     fetchAccount();
   }, [params.id]);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-3xl font-bold mb-4">Chargement...</h1>
-        </div>
-      </div>
-    );
-  }
+  if (isLoading) return <div>Chargement...</div>;
+  if (!account) return <div>Compte non trouvé</div>;
 
-  if (!account) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-3xl font-bold mb-4">Compte non trouvé</h1>
-          <Link href="/products" className="text-blue-500 hover:underline">
-            Retour aux comptes
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
-  const allImages = [account.imageUrl];
+  const allImages = [account.imageUrl, ...(account.additionalImages || [])];
 
   return (
     <div className="min-h-screen p-8">
@@ -84,21 +66,31 @@ export default function AccountDetailPage({
                 priority
               />
             </div>
-            <div className="grid grid-cols-4 gap-4">
-              {allImages.map((img, index) => (
-                <button
-                  key={index}
-                  onClick={() => setSelectedImage(index)}
-                  className={`relative aspect-video rounded-lg overflow-hidden border-2 transition-colors ${
-                    selectedImage === index
-                      ? "border-blue-500"
-                      : "border-transparent hover:border-blue-500/50"
-                  }`}
-                >
-                  <Image src={img} alt="" fill className="object-cover" />
-                </button>
-              ))}
-            </div>
+
+            {/* Miniatures */}
+            {allImages.length > 1 && (
+              <div className="grid grid-cols-6 gap-2">
+                {allImages.map((img, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setSelectedImage(index)}
+                    className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-colors ${
+                      selectedImage === index
+                        ? "border-blue-500"
+                        : "border-transparent hover:border-blue-500/50"
+                    }`}
+                  >
+                    <Image
+                      src={img}
+                      alt=""
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 768px) 16vw, 8vw"
+                    />
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Informations du compte */}
@@ -112,59 +104,58 @@ export default function AccountDetailPage({
               </div>
             </div>
 
-            <div className="space-y-4">
-              <h2 className="text-2xl font-semibold">Caractéristiques</h2>
-              <ul className="space-y-2">
-                {account.features.map((feature, index) => (
-                  <li key={index} className="flex items-start space-x-2">
-                    <span className="text-blue-500">•</span>
-                    <span>{feature}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div className="space-y-4">
-              <h2 className="text-2xl font-semibold">
-                Processus d'achat sécurisé
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="bg-white/5 p-6 rounded-xl">
-                  <div className="text-xl font-semibold mb-2">1. Contact</div>
-                  <p className="text-sm text-white/80">
-                    Contactez-nous via Discord ou Telegram pour confirmer la
-                    disponibilité et organiser la transaction.
-                  </p>
-                </div>
-                <div className="bg-white/5 p-6 rounded-xl">
-                  <div className="text-xl font-semibold mb-2">2. Paiement</div>
-                  <p className="text-sm text-white/80">
-                    Effectuez le paiement via une méthode sécurisée de votre
-                    choix (PayPal, virement bancaire).
-                  </p>
-                </div>
-                <div className="bg-white/5 p-6 rounded-xl">
-                  <div className="text-xl font-semibold mb-2">3. Transfert</div>
-                  <p className="text-sm text-white/80">
-                    Réception des identifiants et changement immédiat des accès
-                    pour sécuriser votre compte.
-                  </p>
-                </div>
+            <div className="space-y-6">
+              <div>
+                <h2 className="text-2xl font-semibold mb-4">
+                  Caractéristiques
+                </h2>
+                <ul className="space-y-2">
+                  {account.features.map((feature, index) => (
+                    <li key={index} className="flex items-start space-x-2">
+                      <span className="text-blue-500">•</span>
+                      <span>{feature}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
-            </div>
 
-            <div className="flex space-x-4">
+              <div>
+                <h2 className="text-2xl font-semibold mb-4">Livraison</h2>
+                <ul className="space-y-4">
+                  <li className="flex items-start space-x-3">
+                    <span className="text-green-500">✓</span>
+                    <span>Livraison immédiate après paiement</span>
+                  </li>
+                  <li className="flex items-start space-x-3">
+                    <span className="text-green-500">✓</span>
+                    <span>Changement des accès inclus</span>
+                  </li>
+                  <li className="flex items-start space-x-3">
+                    <span className="text-green-500">✓</span>
+                    <span>Support après-vente 24/7</span>
+                  </li>
+                </ul>
+              </div>
+
+              <div>
+                <h2 className="text-2xl font-semibold mb-4">Garanties</h2>
+                <ul className="space-y-4">
+                  <li className="flex items-start space-x-3">
+                    <span className="text-green-500">✓</span>
+                    <span>Compte vérifié et sécurisé</span>
+                  </li>
+                  <li className="flex items-start space-x-3">
+                    <span className="text-green-500">✓</span>
+                    <span>Garantie de remboursement 30 jours</span>
+                  </li>
+                </ul>
+              </div>
+
               <Link
-                href="https://discord.gg/patate"
-                className="flex-1 bg-blue-600 text-white py-4 rounded-xl font-semibold text-center hover:bg-blue-700 transition-colors"
+                href="/delivery"
+                className="block w-full text-center py-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors mt-8"
               >
-                Contacter sur Discord
-              </Link>
-              <Link
-                href="https://telegram.me/JadeOrlaBeat"
-                className="flex-1 bg-blue-600 text-white py-4 rounded-xl font-semibold text-center hover:bg-blue-700 transition-colors"
-              >
-                Contacter sur Telegram
+                Voir les modalités de livraison
               </Link>
             </div>
           </div>

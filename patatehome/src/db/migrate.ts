@@ -1,6 +1,10 @@
 import { migrate } from "drizzle-orm/libsql/migrator";
 import { drizzle } from "drizzle-orm/libsql";
 import { createClient } from "@libsql/client";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 async function main() {
   const client = createClient({
@@ -10,16 +14,17 @@ async function main() {
   const db = drizzle(client);
 
   console.log("Migration started...");
-  await migrate(db, {
-    migrationsFolder: "src/db/migrations",
-  });
-  console.log("Migration completed!");
 
-  process.exit(0);
+  try {
+    await migrate(db, {
+      migrationsFolder: path.join(__dirname, "migrations"),
+    });
+    console.log("Migration completed successfully!");
+    process.exit(0);
+  } catch (error) {
+    console.error("Migration failed:", error);
+    process.exit(1);
+  }
 }
 
-main().catch((err) => {
-  console.error("Migration failed!");
-  console.error(err);
-  process.exit(1);
-});
+main();
