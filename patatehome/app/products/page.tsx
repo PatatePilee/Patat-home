@@ -13,6 +13,7 @@ type Account = {
   status: string;
   category?: string;
   tags?: string[];
+  cartCount: number;
 };
 
 export default function ProductsPage() {
@@ -32,6 +33,7 @@ export default function ProductsPage() {
             features: JSON.parse(account.features),
             tags: [],
             category: `hdv${account.hdv}`,
+            cartCount: account.cartCount,
           }));
           setAccounts(formattedAccounts);
         }
@@ -236,6 +238,14 @@ export default function ProductsPage() {
                           fill
                           className="object-cover"
                         />
+                        {account.cartCount > 0 && (
+                          <div className="absolute top-2 right-2 bg-blue-600/90 px-2 py-1 rounded text-sm">
+                            <span className="font-semibold">
+                              {account.cartCount}
+                            </span>{" "}
+                            dans les paniers
+                          </div>
+                        )}
                       </div>
                       <h3 className="text-xl font-bold mb-2">
                         HDV {account.hdv} - Niveau {account.level}

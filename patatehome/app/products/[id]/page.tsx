@@ -46,6 +46,39 @@ export default function AccountDetailPage({
     fetchAccount();
   }, [params.id]);
 
+  const handleAddToCart = async (accountId: number) => {
+    const userStr = localStorage.getItem("user");
+    if (!userStr) {
+      router.push("/login");
+      return;
+    }
+
+    const user = JSON.parse(userStr);
+
+    try {
+      const response = await fetch("/api/cart", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          accountId,
+          userId: user.id,
+        }),
+      });
+
+      if (response.ok) {
+        router.push("/products");
+      } else {
+        const data = await response.json();
+        alert(data.error || "Une erreur est survenue");
+      }
+    } catch (error) {
+      console.error("Erreur lors de l'ajout au panier:", error);
+      alert("Une erreur est survenue");
+    }
+  };
+
   if (isLoading) return <div>Chargement...</div>;
   if (!account) return <div>Compte non trouvé</div>;
 
@@ -150,6 +183,13 @@ export default function AccountDetailPage({
                   </li>
                 </ul>
               </div>
+
+              <button
+                onClick={() => handleAddToCart(account.id)}
+                className="w-full py-4 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors mb-4"
+              >
+                Ajouter au panier
+              </button>
 
               <Link
                 href="/delivery"

@@ -3,6 +3,7 @@ import "./globals.css";
 import Header from "./components/Header";
 import { metadata } from "./metadata";
 import Footer from "./components/Footer";
+import { Providers } from "./providers";
 
 const font = GeistSans;
 
@@ -16,9 +17,11 @@ export default function RootLayout({
   return (
     <html lang="fr" className={font.className}>
       <body suppressHydrationWarning>
-        <Header />
-        <main className="pt-16">{children}</main>
-        <Footer />
+        <Providers>
+          <Header />
+          <main className="pt-16">{children}</main>
+          <Footer />
+        </Providers>
       </body>
     </html>
   );

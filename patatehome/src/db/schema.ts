@@ -22,6 +22,7 @@ export const accounts = sqliteTable("accounts", {
   status: text("status").notNull().default("available"),
   createdAt: integer("created_at").notNull(),
   updatedAt: integer("updated_at").notNull(),
+  cartCount: integer("cart_count").notNull().default(0),
 });
 
 export const accountAdditionalImages = sqliteTable(
@@ -80,6 +81,19 @@ export const pageSettings = sqliteTable("page_settings", {
   pageName: text("page_name").notNull().unique(),
   isActive: integer("is_active").notNull().default(1),
   updatedAt: integer("updated_at")
+    .notNull()
+    .default(sql`(unixepoch())`),
+});
+
+export const cartItems = sqliteTable("cart_items", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  userId: integer("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  accountId: integer("account_id")
+    .notNull()
+    .references(() => accounts.id, { onDelete: "cascade" }),
+  createdAt: integer("created_at")
     .notNull()
     .default(sql`(unixepoch())`),
 });

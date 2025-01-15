@@ -2,6 +2,8 @@
 
 ## 🚀 Installation
 
+0001 npm run db:migrate:accounts
+
 ### 1. Cloner le dépôt
 
 ```bash

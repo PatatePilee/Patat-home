@@ -84,6 +84,12 @@ export default function Header() {
             >
               Contact
             </Link>
+            <Link
+              href="/cart"
+              className="hover:text-blue-500 transition-colors"
+            >
+              Panier
+            </Link>
             {isAdmin && (
               <Link
                 href="/admin"
