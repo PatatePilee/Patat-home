@@ -1,31 +1,55 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
 import { db } from "../../../../src/db";
-import { cartItems } from "../../../../src/db/schema";
-import { authOptions } from "../../auth/[...nextauth]/route";
-import { eq, and } from "drizzle-orm";
+import { cartItems, accounts } from "../../../../src/db/schema";
+import { eq, and, sql } from "drizzle-orm";
 
 export async function DELETE(
   request: Request,
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
+    const { userId } = await request.json();
+
+    if (!userId) {
       return NextResponse.json(
         { error: "Vous devez être connecté" },
         { status: 401 }
       );
     }
 
-    await db
-      .delete(cartItems)
+    // Récupérer l'élément du panier pour obtenir l'accountId
+    const cartItem = await db
+      .select()
+      .from(cartItems)
       .where(
         and(
           eq(cartItems.id, parseInt(params.id)),
-          eq(cartItems.userId, session.user.id)
+          eq(cartItems.userId, parseInt(userId))
         )
-      );
+      )
+      .limit(1);
+
+    if (cartItem.length > 0) {
+      await db.transaction(async (tx) => {
+        // Supprimer l'élément du panier
+        await tx
+          .delete(cartItems)
+          .where(
+            and(
+              eq(cartItems.id, parseInt(params.id)),
+              eq(cartItems.userId, parseInt(userId))
+            )
+          );
+
+        // Décrémenter le compteur du compte
+        await tx
+          .update(accounts)
+          .set({
+            cartCount: sql`cart_count - 1`,
+          })
+          .where(eq(accounts.id, cartItem[0].accountId));
+      });
+    }
 
     return NextResponse.json({ message: "Article supprimé du panier" });
   } catch (error) {

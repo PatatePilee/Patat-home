@@ -1,5 +1,4 @@
 "use client";
-import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Image from "next/image";
@@ -19,7 +18,6 @@ type CartItem = {
 };
 
 export default function CartPage() {
-  const { data: session } = useSession();
   const router = useRouter();
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -51,9 +49,18 @@ export default function CartPage() {
   }, [router]);
 
   const handleRemoveFromCart = async (cartItemId: number) => {
+    const userStr = localStorage.getItem("user");
+    if (!userStr) return;
+
+    const user = JSON.parse(userStr);
+
     try {
       const response = await fetch(`/api/cart/${cartItemId}`, {
         method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ userId: user.id }),
       });
 
       if (response.ok) {

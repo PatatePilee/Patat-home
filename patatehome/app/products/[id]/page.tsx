@@ -1,4 +1,5 @@
 "use client";
+import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -19,6 +20,7 @@ export default function AccountDetailPage({
 }: {
   params: { id: string };
 }) {
+  const router = useRouter();
   const [account, setAccount] = useState<Account | null>(null);
   const [selectedImage, setSelectedImage] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
@@ -67,15 +69,18 @@ export default function AccountDetailPage({
         }),
       });
 
+      const data = await response.json();
+
       if (response.ok) {
-        router.push("/products");
+        if (data.redirect) {
+          router.push(data.redirect);
+        }
       } else {
-        const data = await response.json();
-        alert(data.error || "Une erreur est survenue");
+        // alert(data.error || "Une erreur est survenue");
+        router.push(data.redirect);
       }
     } catch (error) {
       console.error("Erreur lors de l'ajout au panier:", error);
-      alert("Une erreur est survenue");
     }
   };
 
@@ -184,12 +189,23 @@ export default function AccountDetailPage({
                 </ul>
               </div>
 
-              <button
-                onClick={() => handleAddToCart(account.id)}
-                className="w-full py-4 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors mb-4"
-              >
-                Ajouter au panier
-              </button>
+              <div className="flex gap-4 mb-4">
+                <button
+                  onClick={() => handleAddToCart(account.id)}
+                  className="flex-1 py-4 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                >
+                  Ajouter et voir les produits
+                </button>
+                <button
+                  onClick={async () => {
+                    await handleAddToCart(account.id);
+                    router.push("/cart");
+                  }}
+                  className="flex-1 py-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  Ajouter et voir le panier
+                </button>
+              </div>
 
               <Link
                 href="/delivery"
