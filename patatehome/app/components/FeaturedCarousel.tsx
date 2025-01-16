@@ -38,6 +38,24 @@ export default function FeaturedCarousel({
 
   return (
     <div className="relative w-full max-w-6xl mx-auto h-[400px] overflow-hidden">
+      {/* Flèches de navigation */}
+      <div className="absolute inset-0 flex items-center justify-between px-4 z-20">
+        <button
+          onClick={() => setCurrentIndex(getPrevIndex())}
+          className="bg-white hover:bg-white/90 text-black w-10 h-10 rounded-full flex items-center justify-center transition-colors"
+          aria-label="Image précédente"
+        >
+          ←
+        </button>
+        <button
+          onClick={() => setCurrentIndex(getNextIndex())}
+          className="bg-white hover:bg-white/90 text-black w-10 h-10 rounded-full flex items-center justify-center transition-colors"
+          aria-label="Image suivante"
+        >
+          →
+        </button>
+      </div>
+
       <div className="absolute inset-0 flex items-center justify-center">
         {/* Compte précédent (gauche) */}
         <div

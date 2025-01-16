@@ -43,23 +43,24 @@ export default function AccountFeed() {
 
   return (
     <div className="min-h-screen bg-black p-4">
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      <div className="max-w-2xl mx-auto space-y-6">
         {accounts.map((account) => (
           <motion.div
             key={account.id}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="relative aspect-[9/16] rounded-xl overflow-hidden group cursor-pointer"
+            className="relative w-full rounded-xl overflow-hidden bg-white/5 hover:bg-white/10 transition-colors"
           >
-            <Image
-              src={account.imageUrl}
-              alt={`HDV ${account.hdv}`}
-              fill
-              className="object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-black/80" />
-
-            <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
+            <div className="relative w-full aspect-[16/9]">
+              <Image
+                src={account.imageUrl}
+                alt={`HDV ${account.hdv}`}
+                fill
+                className="object-contain"
+                sizes="(max-width: 768px) 100vw, 50vw"
+              />
+            </div>
+            <div className="p-4 text-white">
               <h2 className="text-lg font-bold mb-2">
                 HDV {account.hdv} - Niveau {account.level}
               </h2>
