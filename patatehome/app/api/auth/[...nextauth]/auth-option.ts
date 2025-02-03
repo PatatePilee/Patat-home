@@ -1,9 +1,21 @@
-import { AuthOptions } from "next-auth";
+import { AuthOptions, DefaultSession } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { db } from "@/src/db";
 import { users } from "@/src/db/schema";
 import { eq } from "drizzle-orm";
 import { compare } from "bcrypt";
+
+declare module "next-auth" {
+  interface User {
+    role?: string;
+  }
+  interface Session {
+    user: {
+      id?: string;
+      role?: string;
+    } & DefaultSession["user"];
+  }
+}
 
 export const authOptions: AuthOptions = {
   providers: [
