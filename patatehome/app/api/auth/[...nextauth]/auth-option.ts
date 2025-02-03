@@ -1,23 +1,9 @@
+import { AuthOptions } from "next-auth";
+import CredentialsProvider from "next-auth/providers/credentials";
 import { db } from "@/src/db";
 import { users } from "@/src/db/schema";
-import { compare } from "bcrypt";
 import { eq } from "drizzle-orm";
-import { AuthOptions, DefaultSession, DefaultUser } from "next-auth";
-import CredentialsProvider from "next-auth/providers/credentials";
-
-// Extend the built-in session types
-declare module "next-auth" {
-  interface Session extends DefaultSession {
-    user: {
-      id: string;
-      role: string;
-    } & DefaultSession["user"];
-  }
-
-  interface User extends DefaultUser {
-    role: string;
-  }
-}
+import { compare } from "bcrypt";
 
 export const authOptions: AuthOptions = {
   providers: [
@@ -25,26 +11,26 @@ export const authOptions: AuthOptions = {
       name: "credentials",
       credentials: {
         email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" },
+        password: { label: "Password", type: "password" }
       },
       async authorize(credentials) {
         try {
           if (!credentials?.email || !credentials?.password) {
-            throw new Error("Email et mot de passe requis");
+            return null;
           }
-          
+
           const user = await db.query.users.findFirst({
             where: eq(users.email, credentials.email),
           });
 
           if (!user) {
-            throw new Error("Utilisateur non trouvé");
+            return null;
           }
 
-          const passwordMatch = await compare(credentials.password, user.password);
-          
-          if (!passwordMatch) {
-            throw new Error("Mot de passe incorrect");
+          const isPasswordValid = await compare(credentials.password, user.password);
+
+          if (!isPasswordValid) {
+            return null;
           }
 
           return {
@@ -54,16 +40,34 @@ export const authOptions: AuthOptions = {
             role: user.role,
           };
         } catch (error) {
-          console.error("Erreur d'authentification:", error);
+          console.error("Auth error:", error);
           return null;
         }
-      },
-    }),
+      }
+    })
   ],
-  debug: process.env.NODE_ENV === "development",
+  pages: {
+    signIn: "/login",
+  },
   session: {
     strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60, // 30 jours
   },
-  secret: process.env.NEXTAUTH_SECRET,
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+        token.role = user.role;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      if (session.user) {
+        session.user.id = token.id as string;
+        session.user.role = token.role as string;
+      }
+      return session;
+    }
+  },
+  debug: process.env.NODE_ENV === "development",
 };
