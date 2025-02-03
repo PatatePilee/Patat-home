@@ -1,12 +1,13 @@
 import { db } from "../../src/db";
 import { giveaways } from "../../src/db/schema";
+import { eq } from "drizzle-orm";
 
 export async function getGiveaway() {
   try {
     const activeGiveaway = await db
       .select()
       .from(giveaways)
-      .where({ isActive: true })
+      .where(eq(giveaways.isActive, true))
       .limit(1);
     return activeGiveaway[0] || null;
   } catch (error) {

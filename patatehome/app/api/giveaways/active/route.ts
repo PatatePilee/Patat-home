@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { db } from "../../../../src/db";
-import { giveaways } from "../../../../src/db/schema";
+import { db } from "@/src/db";
+import { giveaways } from "@/src/db/schema";
 import { eq } from "drizzle-orm";
 
 export async function GET() {
@@ -8,7 +8,7 @@ export async function GET() {
     const activeGiveaway = await db
       .select()
       .from(giveaways)
-      .where(eq(giveaways.isActive, 1))
+      .where(eq(giveaways.isActive, true))
       .limit(1);
 
     if (!activeGiveaway.length) {

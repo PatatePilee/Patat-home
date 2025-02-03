@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { db } from "../../../../src/db";
-import { accounts, accountAdditionalImages } from "../../../../src/db/schema";
+import { db } from "@/src/db";
+import { accounts, accountAdditionalImages } from "@/src/db/schema";
 import { eq } from "drizzle-orm";
 
 export async function GET(

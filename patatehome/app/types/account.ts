@@ -6,13 +6,16 @@ export type Account = {
   imageUrl: string;
   features: string[] | string;
   status: string;
+  category: string;
+  additionalImages?: string[];
+  tags: string[];
   createdAt: number;
   updatedAt: number;
 };
 
 export const accounts: Account[] = [
   {
-    id: "1",
+    id: 1,
     category: "hdv17",
     hdv: 17,
     level: 300,
@@ -25,9 +28,12 @@ export const accounts: Account[] = [
     ],
     features: ["HDV 17 Max", "Héros Max", "Murs Max"],
     tags: ["max", "premium", "hdv17"],
+    status: "available",
+    createdAt: Date.now(),
+    updatedAt: Date.now()
   },
   {
-    id: "2",
+    id: 2,
     category: "hdv16",
     hdv: 16,
     level: 275,
@@ -40,9 +46,12 @@ export const accounts: Account[] = [
     ],
     features: ["HDV 16 Max", "Héros Max", "Murs Max"],
     tags: ["max", "premium", "hdv16"],
+    status: "available",
+    createdAt: Date.now(),
+    updatedAt: Date.now()
   },
   {
-    id: "3",
+    id: 3,
     category: "hdv15-",
     hdv: 15,
     level: 250,
@@ -50,25 +59,36 @@ export const accounts: Account[] = [
     imageUrl: "/accounts/hdv15-max.jpg",
     features: ["HDV 15 Max", "Héros Max", "Murs Max"],
     tags: ["max", "hdv15"],
+    status: "available",
+    createdAt: Date.now(),
+    updatedAt: Date.now()
   },
   {
-    id: "4",
+    id: 4,
     category: "clans",
+    hdv: 0,
     level: 15,
     price: 399.99,
     imageUrl: "/accounts/clan-max.jpg",
     features: ["Niveau 15", "Capital Max", "50 membres actifs"],
     tags: ["clan", "max"],
+    status: "available",
+    createdAt: Date.now(),
+    updatedAt: Date.now()
   },
   {
-    id: "5",
+    id: 5,
     category: "brawlstars",
+    hdv: 0,
     level: 300,
     price: 199.99,
     imageUrl: "/accounts/brawl-max.jpg",
     features: ["Tous les Brawlers", "Niveau Power 11", "Tous les Gadgets"],
     tags: ["brawlstars", "max"],
-  },
+    status: "available",
+    createdAt: Date.now(),
+    updatedAt: Date.now()
+  }
 ];
 
 export const getFeaturedAccounts = () => accounts.slice(0, 3);

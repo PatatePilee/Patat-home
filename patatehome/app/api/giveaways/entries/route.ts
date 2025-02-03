@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { db } from "../../../../src/db";
-import { giveawayEntries } from "../../../../src/db/schema";
+import { db } from "@/src/db";
+import { giveawayEntries } from "@/src/db/schema";
 
 // POST /api/giveaways/entries
 export async function POST(request: Request) {
@@ -30,7 +30,7 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         error: "Erreur lors de l'inscription au giveaway",
-        details: error.message,
+        //details: error.message,
       },
       { status: 500 }
     );
