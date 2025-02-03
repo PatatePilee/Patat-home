@@ -1,5 +1,5 @@
-import { db } from "../../../../../src/db";
-import { giveaways } from "../../../../../src/db/schema";
+import { db } from "@/src/db";
+import { giveaways } from "@/src/db/schema";
 import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 
@@ -18,7 +18,7 @@ export async function PUT(
         imageUrl: body.imageUrl,
         prizes: JSON.stringify(body.prizes),
         requirements: JSON.stringify(body.requirements),
-        isActive: body.isActive ? 1 : 0,
+        isActive: Boolean(body.isActive),
         startDate: new Date(body.startDate),
         endDate: new Date(body.endDate),
       })

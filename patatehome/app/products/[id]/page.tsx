@@ -71,12 +71,15 @@ export default function AccountDetailPage({
 
       const data = await response.json();
 
-      if (response.ok) {
-        if (data.redirect) {
-          router.push(data.redirect);
-        }
-      } else {
-        // alert(data.error || "Une erreur est survenue");
+      if (
+        response.status === 400 &&
+        data.error === "Ce produit est déjà dans votre panier"
+      ) {
+        router.push("/products");
+        return;
+      }
+
+      if (response.ok && data.redirect) {
         router.push(data.redirect);
       }
     } catch (error) {
@@ -222,7 +225,10 @@ export default function AccountDetailPage({
 
               <div className="flex gap-4 mb-4">
                 <button
-                  onClick={() => handleAddToCart(account.id)}
+                  onClick={async () => {
+                    await handleAddToCart(account.id);
+                    router.push("/products");
+                  }}
                   className="flex-1 py-4 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
                 >
                   Ajouter et voir les produits

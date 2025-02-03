@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, JSXElementConstructor, Key, ReactElement, ReactNode, ReactPortal } from "react";
 import AccountsTable from "./components/AccountsTable";
 import UsersTable from "./components/UsersTable";
 import ReviewsTable from "./components/ReviewsTable";
@@ -8,9 +8,16 @@ import PageSettings from "./components/PageSettings";
 import PagesManager from "./components/PagesManager";
 import { Switch } from "@headlessui/react";
 
+type Page = {
+  id: number;
+  title: string;
+  path: string;
+  isActive: number;
+};
+
 export default function AdminPage() {
   const [activeTab, setActiveTab] = useState<
-    "accounts" | "users" | "reviews" | "giveaway"
+    "accounts" | "users" | "reviews" | "giveaway" | "pages"
   >("accounts");
 
   const [accountForm, setAccountForm] = useState({
@@ -46,6 +53,42 @@ export default function AdminPage() {
     endDate: "",
     isActive: false,
   });
+
+  const [pages, setPages] = useState<Page[]>([]);
+
+  useEffect(() => {
+    fetchPages();
+  }, []);
+
+  const fetchPages = async () => {
+    try {
+      const response = await fetch('/api/admin/pages');
+      if (response.ok) {
+        const data = await response.json();
+        setPages(data);
+      }
+    } catch (error) {
+      console.error('Error fetching pages:', error);
+    }
+  };
+
+  async function handleTogglePage(id: Key | null | undefined, isActive: number) {
+    try {
+      const response = await fetch(`/api/admin/pages/${id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ isActive: isActive === 1 ? 0 : 1 }),
+      });
+
+      if (response.ok) {
+        fetchPages(); // Refresh pages after toggle
+      }
+    } catch (error) {
+      console.error('Error toggling page:', error);
+    }
+  }
 
   const handleCreateAccount = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -196,7 +239,6 @@ export default function AdminPage() {
       window.location.reload();
     } catch (error) {
       console.error("Erreur lors de la création du giveaway:", error);
-      alert(error.message);
     }
   };
 
@@ -635,7 +677,7 @@ export default function AdminPage() {
                 Paramètres des pages
               </h2>
               <div className="space-y-4">
-                {pages.map((page) => (
+                {pages.map((page: { id: Key | null | undefined; title: string | number | bigint | boolean | ReactElement<unknown, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | Promise<string | number | bigint | boolean | ReactPortal | ReactElement<unknown, string | JSXElementConstructor<any>> | Iterable<ReactNode> | null | undefined> | null | undefined; path: string | number | bigint | boolean | ReactElement<unknown, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | Promise<string | number | bigint | boolean | ReactPortal | ReactElement<unknown, string | JSXElementConstructor<any>> | Iterable<ReactNode> | null | undefined> | null | undefined; isActive: number; }) => (
                   <div
                     key={page.id}
                     className="flex items-center justify-between p-4 bg-white/10 rounded-lg"

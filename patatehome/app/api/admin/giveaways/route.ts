@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { db } from "../../../../src/db";
-import { giveaways } from "../../../../src/db/schema";
+import { db } from "@/src/db";
+import { giveaways } from "@/src/db/schema";
 
 // GET /api/admin/giveaways
 export async function GET() {
@@ -13,7 +13,7 @@ export async function GET() {
     return NextResponse.json(
       {
         error: "Erreur lors de la récupération des giveaways",
-        details: error.message,
+       // details: error.message,
       },
       { status: 500 }
     );
@@ -46,19 +46,17 @@ export async function POST(request: Request) {
 
     const newGiveaway = await db
       .insert(giveaways)
-      .values([
-        {
-          title: body.title,
-          description: body.description,
-          imageUrl: body.imageUrl,
-          prizes: JSON.stringify(body.prizes),
-          requirements: JSON.stringify(body.requirements),
-          isActive: body.isActive ? 1 : 0,
-          startDate: new Date(body.startDate),
-          endDate: new Date(body.endDate),
-          createdAt: new Date(),
-        },
-      ])
+      .values({
+        title: body.title,
+        description: body.description,
+        imageUrl: body.imageUrl,
+        prizes: JSON.stringify(body.prizes),
+        requirements: JSON.stringify(body.requirements),
+        isActive: Boolean(body.isActive),
+        startDate: new Date(body.startDate),
+        endDate: new Date(body.endDate),
+        createdAt: new Date(),
+      })
       .returning();
 
     console.log("Giveaway créé:", newGiveaway); // Debug
@@ -68,7 +66,7 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         error: "Erreur lors de la création du giveaway",
-        details: error.message,
+        //details: error.message,
       },
       { status: 500 }
     );

@@ -207,11 +207,12 @@ export default function AccountsTable() {
                   />
                 ) : (
                   <ul>
-                    {JSON.parse(account.features).map(
-                      (feature: string, index: number) => (
-                        <li key={index}>• {feature}</li>
-                      )
-                    )}
+                    {(typeof account.features === 'string' 
+                      ? JSON.parse(account.features) 
+                      : account.features
+                    ).map((feature: string, index: number) => (
+                      <li key={index}>• {feature}</li>
+                    ))}
                   </ul>
                 )}
               </td>

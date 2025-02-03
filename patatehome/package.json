@@ -15,6 +15,7 @@
     "db:migrate:accounts": "tsx src/db/migrations/0009_add_cart_count.ts"
   },
   "dependencies": {
+    "@auth/core": "^0.34.2",
     "@headlessui/react": "^2.2.0",
     "@heroicons/react": "^2.2.0",
     "@libsql/client": "^0.5.3",

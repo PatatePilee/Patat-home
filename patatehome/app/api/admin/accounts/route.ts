@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { db } from "../../../../src/db";
-import { accounts, accountAdditionalImages } from "../../../../src/db/schema";
+import { db } from "@/src/db";
+import { accounts, accountAdditionalImages } from "@/src/db/schema";
 
 export const POST = async (request: Request) => {
   try {

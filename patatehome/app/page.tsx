@@ -27,7 +27,7 @@ export default async function Home() {
     }));
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-gradient-to-b from-[#3a1818] to-black">
       {/* Hero Section */}
       <section className="relative h-[85vh] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-black/80 to-black/40 z-10" />
@@ -73,7 +73,7 @@ export default async function Home() {
           </h2>
           <div className="space-y-16">
             <div className="group p-12 rounded-2xl bg-black/40 hover:bg-white/5 transition-all duration-500 cursor-default">
-              <p className="text-3xl leading-relaxed mb-8 text-white/60 group-hover:text-white transition-colors">
+              <p className="text-2xl leading-relaxed mb-8 text-white/60 group-hover:text-white transition-colors">
                 Bienvenue sur{" "}
                 <span className="text-blue-500 font-semibold">
                   Patate Clash of Clans
@@ -84,7 +84,7 @@ export default async function Home() {
             </div>
 
             <div className="group p-12 rounded-2xl bg-black/40 hover:bg-white/5 transition-all duration-500 cursor-default">
-              <p className="text-3xl leading-relaxed text-white/60 group-hover:text-white transition-colors">
+              <p className="text-2xl leading-relaxed text-white/60 group-hover:text-white transition-colors">
                 Joueur passionné depuis 2018, mon engagement envers Clash of
                 Clans s'est particulièrement intensifié pendant la période du
                 Covid. Face au constat de comptes vendus à des prix excessifs et
@@ -94,7 +94,7 @@ export default async function Home() {
             </div>
 
             <div className="group p-12 rounded-2xl bg-black/40 hover:bg-white/5 transition-all duration-500 cursor-default">
-              <p className="text-3xl leading-relaxed text-white/60 group-hover:text-white transition-colors">
+              <p className="text-2xl leading-relaxed text-white/60 group-hover:text-white transition-colors">
                 Ma mission est simple : vous offrir des comptes premium
                 soigneusement sélectionnés, à des prix justes et transparents,
                 accompagnés d'un service après-vente irréprochable. Chaque

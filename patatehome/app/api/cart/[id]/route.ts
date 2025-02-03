@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { db } from "../../../../src/db";
-import { cartItems, accounts } from "../../../../src/db/schema";
+import { db } from "@/src/db";
+import { cartItems, accounts } from "@/src/db/schema";
 import { eq, and, sql } from "drizzle-orm";
 
 export async function DELETE(

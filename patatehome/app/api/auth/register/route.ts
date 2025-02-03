@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { db } from "../../../../src/db";
-import { users } from "../../../../src/db/schema";
+import { db } from "@/src/db";
+import { users } from "@/src/db/schema";
 import { hash } from "bcrypt";
 
 export async function POST(request: Request) {
