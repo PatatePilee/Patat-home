@@ -30,7 +30,7 @@ export const authOptions: AuthOptions = {
       name: "credentials",
       credentials: {
         email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" }
+        password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
         try {
@@ -46,7 +46,10 @@ export const authOptions: AuthOptions = {
             return null;
           }
 
-          const isPasswordValid = await compare(credentials.password, user.password);
+          const isPasswordValid = await compare(
+            credentials.password,
+            user.password
+          );
 
           if (!isPasswordValid) {
             return null;
@@ -62,11 +65,12 @@ export const authOptions: AuthOptions = {
           console.error("Auth error:", error);
           return null;
         }
-      }
-    })
+      },
+    }),
   ],
   pages: {
     signIn: "/login",
+    error: "/login",
   },
   session: {
     strategy: "jwt",
@@ -86,7 +90,7 @@ export const authOptions: AuthOptions = {
         session.user.role = token.role as string;
       }
       return session;
-    }
+    },
   },
   debug: process.env.NODE_ENV === "development",
 };
