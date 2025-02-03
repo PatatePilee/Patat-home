@@ -28,62 +28,42 @@ export const authOptions: AuthOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
+        try {
+          if (!credentials?.email || !credentials?.password) {
+            throw new Error("Email et mot de passe requis");
+          }
+          
+          const user = await db.query.users.findFirst({
+            where: eq(users.email, credentials.email),
+          });
+
+          if (!user) {
+            throw new Error("Utilisateur non trouvé");
+          }
+
+          const passwordMatch = await compare(credentials.password, user.password);
+          
+          if (!passwordMatch) {
+            throw new Error("Mot de passe incorrect");
+          }
+
+          return {
+            id: user.id.toString(),
+            email: user.email,
+            name: user.username,
+            role: user.role,
+          };
+        } catch (error) {
+          console.error("Erreur d'authentification:", error);
           return null;
         }
-
-        const user = await db.query.users.findFirst({
-          where: eq(users.email, credentials.email),
-        });
-
-        if (!user) {
-          return null;
-        }
-
-        const passwordMatch = await compare(
-          credentials.password,
-          user.password
-        );
-
-        if (!passwordMatch) {
-          return null;
-        }
-
-        return {
-          id: user.id.toString(),
-          email: user.email,
-          name: user.username,
-          role: user.role,
-        };
       },
     }),
   ],
-  callbacks: {
-    async jwt({ token, user }) {
-      if (user) {
-        token.id = user.id;
-        token.email = user.email;
-        token.name = user.name;
-        token.role = user.role;
-      }
-      return token;
-    },
-    async session({ session, token }) {
-      if (session?.user) {
-        session.user.id = token.id as string;
-        session.user.email = token.email;
-        session.user.name = token.name;
-        session.user.role = token.role as string;
-      }
-      return session;
-    },
-  },
-  pages: {
-    signIn: "/login",
-  },
+  debug: process.env.NODE_ENV === "development",
   session: {
     strategy: "jwt",
-    maxAge: 30 * 24 * 60 * 60, // 30 days
+    maxAge: 30 * 24 * 60 * 60, // 30 jours
   },
   secret: process.env.NEXTAUTH_SECRET,
 };
