@@ -4,6 +4,16 @@ import { users } from "@/src/db/schema";
 import { compare } from "bcrypt";
 import { eq } from "drizzle-orm";
 
+export async function OPTIONS() {
+  return NextResponse.json({}, { 
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    }
+  });
+}
+
 export const POST = async (request: Request) => {
   try {
     const { email, password } = await request.json();
