@@ -16,7 +16,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fr" className={font.className}>
-      <body suppressHydrationWarning>
+      <body suppressHydrationWarning className="bg-black min-h-screen text-white">
         <Providers>
           <Header />
           <main className="16">{children}</main>
