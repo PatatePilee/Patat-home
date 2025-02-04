@@ -27,15 +27,8 @@ export default function Header() {
     <header className="bg-black/80 backdrop-blur-md sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex items-center justify-between h-16">
-          <Link href="/" className="flex items-center space-x-2">
-            <Image
-              src="/patat'home.png"
-              alt="Logo"
-              width={40}
-              height={40}
-              className="rounded-full"
-            />
-            <span className="font-bold text-xl">Patate Home</span>
+          <Link href="/" className="text-white font-bold text-xl">
+            Patate Clash
           </Link>
 
           {/* Burger Menu Button - Visible on mobile only */}
@@ -64,49 +57,49 @@ export default function Header() {
           <nav className="hidden lg:flex items-center space-x-8">
             <Link
               href="/products"
-              className="hover:text-blue-500 transition-colors"
+              className="text-white/90 hover:text-white transition-colors"
             >
               Comptes
             </Link>
             <Link
               href="/delivery"
-              className="hover:text-blue-500 transition-colors"
+              className="text-white/90 hover:text-white transition-colors"
             >
               Livraison
             </Link>
             <Link
               href="/join"
-              className="hover:text-blue-500 transition-colors"
+              className="text-white/90 hover:text-white transition-colors"
             >
               Discord
             </Link>
             <Link
               href="/giveaway"
-              className="hover:text-blue-500 transition-colors"
+              className="text-white/90 hover:text-white transition-colors"
             >
               Giveaway
             </Link>
             <Link
               href="/reviews"
-              className="hover:text-blue-500 transition-colors"
+              className="text-white/90 hover:text-white transition-colors"
             >
               Avis
             </Link>
             <Link
               href="/feed"
-              className="hover:text-blue-500 transition-colors"
+              className="text-white/90 hover:text-white transition-colors"
             >
               Feed
             </Link>
             <Link
               href="/contact"
-              className="hover:text-blue-500 transition-colors"
+              className="text-white/90 hover:text-white transition-colors"
             >
               Contact
             </Link>
             <Link
               href="/cart"
-              className="hover:text-blue-500 transition-colors"
+              className="text-white/90 hover:text-white transition-colors"
             >
               Panier
             </Link>

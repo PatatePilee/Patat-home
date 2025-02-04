@@ -2,8 +2,8 @@ import Link from "next/link";
 
 export default function Footer() {
   return (
-    <footer className="bg-foreground/5 border-t border-foreground/10">
-      <div className="max-w-7xl mx-auto py-12 px-4">
+    <footer className="bg-black/80 text-white/80">
+      <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="col-span-2">
             <h3 className="font-bold text-xl mb-4">Patate Clash of Clans</h3>

@@ -19,7 +19,7 @@ export default function RootLayout({
       <body suppressHydrationWarning>
         <Providers>
           <Header />
-          <main className="pt-0">{children}</main>
+          <main className="16">{children}</main>
           <Footer />
         </Providers>
       </body>
