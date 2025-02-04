@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbo",
-    "build": "next build && npx tailwindcss -o app/globals.css --minify",
+    "build": "next build",
+    "postbuild": "npx tailwindcss -o app/globals.css --minify",
     "start": "next start",
     "lint": "next lint",
     "db:generate": "drizzle-kit generate:sqlite",

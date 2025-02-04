@@ -2,7 +2,8 @@ import { drizzle } from "drizzle-orm/libsql";
 import { createClient } from "@libsql/client";
 
 const client = createClient({
-  url: "file:src/db/patate.db",
+  url: process.env.DATABASE_URL || "file:src/db/patate.db",
+  authToken: process.env.DATABASE_AUTH_TOKEN,
 });
 
 const db = drizzle(client);
