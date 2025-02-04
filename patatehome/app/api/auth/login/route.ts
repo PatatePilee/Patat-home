@@ -4,7 +4,7 @@ import { users } from "@/src/db/schema";
 import { compare } from "bcrypt";
 import { eq } from "drizzle-orm";
 
-export async function POST(request: Request) {
+export const POST = async (request: Request) => {
   try {
     const { email, password } = await request.json();
 
@@ -41,4 +41,4 @@ export async function POST(request: Request) {
       { status: 500 }
     );
   }
-}
+};

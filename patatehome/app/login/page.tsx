@@ -11,7 +11,9 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      console.log("URL de l'API:", process.env.NEXT_PUBLIC_API_URL || '');
       console.log("Tentative de connexion avec:", formData);
+      
       const response = await fetch("/api/auth/login", {
         method: "POST",
         headers: {
@@ -21,6 +23,7 @@ export default function LoginPage() {
       });
 
       console.log("Statut de la réponse:", response.status);
+      console.log("Headers de la réponse:", Object.fromEntries(response.headers));
       
       if (response.ok) {
         const userData = await response.json();
@@ -29,8 +32,14 @@ export default function LoginPage() {
         document.cookie = `user=${JSON.stringify(userData.user)}; path=/`;
         window.location.href = "/";
       } else {
-        const data = await response.json();
-        alert(data.error);
+        const text = await response.text();
+        console.error("Erreur réponse:", text);
+        try {
+          const data = JSON.parse(text);
+          alert(data.error);
+        } catch {
+          alert("Erreur lors de la connexion");
+        }
       }
     } catch (error) {
       console.error("Erreur de connexion:", error);
