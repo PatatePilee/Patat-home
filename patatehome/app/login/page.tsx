@@ -11,6 +11,7 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      console.log("Tentative de connexion avec:", formData);
       const response = await fetch("/api/auth/login", {
         method: "POST",
         headers: {
@@ -19,8 +20,11 @@ export default function LoginPage() {
         body: JSON.stringify(formData),
       });
 
+      console.log("Statut de la réponse:", response.status);
+      
       if (response.ok) {
         const userData = await response.json();
+        console.log("Données utilisateur reçues:", userData);
         localStorage.setItem("user", JSON.stringify(userData.user));
         document.cookie = `user=${JSON.stringify(userData.user)}; path=/`;
         window.location.href = "/";
@@ -29,6 +33,7 @@ export default function LoginPage() {
         alert(data.error);
       }
     } catch (error) {
+      console.error("Erreur de connexion:", error);
       alert("Erreur lors de la connexion");
     }
   };

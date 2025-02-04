@@ -4,17 +4,13 @@ import { users } from "@/src/db/schema";
 import { compare } from "bcrypt";
 import { eq } from "drizzle-orm";
 
-export const POST = async (request: Request) => {
+export async function POST(request: Request) {
   try {
     const { email, password } = await request.json();
-
-    console.log("Email reçu:", email);
 
     const user = await db.query.users.findFirst({
       where: eq(users.email, email),
     });
-
-    console.log("Utilisateur trouvé:", user);
 
     if (!user) {
       return NextResponse.json(
@@ -24,7 +20,6 @@ export const POST = async (request: Request) => {
     }
 
     const passwordMatch = await compare(password, user.password);
-    console.log("Mot de passe correspond:", passwordMatch);
 
     if (!passwordMatch) {
       return NextResponse.json(
@@ -35,17 +30,10 @@ export const POST = async (request: Request) => {
 
     const { password: _, ...userWithoutPassword } = user;
 
-    const responseData = {
+    return NextResponse.json({
       message: "Connexion réussie",
-      user: {
-        ...userWithoutPassword,
-        role: user.role,
-      },
-    };
-
-    console.log("Données de réponse:", responseData);
-
-    return NextResponse.json(responseData);
+      user: userWithoutPassword,
+    });
   } catch (error) {
     console.error("Erreur lors de la connexion:", error);
     return NextResponse.json(
@@ -53,4 +41,4 @@ export const POST = async (request: Request) => {
       { status: 500 }
     );
   }
-};
+}
