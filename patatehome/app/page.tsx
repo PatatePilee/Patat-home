@@ -71,9 +71,9 @@ export default async function Home() {
           <h2 className="text-5xl font-bold mb-16 text-center hover:text-blue-500 transition-colors duration-300">
             Notre Expertise
           </h2>
-          <div className="space-y-16">
-            <div className="group p-12 rounded-2xl bg-black/40 hover:bg-white/5 transition-all duration-500 cursor-default">
-              <p className="text-2xl leading-relaxed mb-8 text-white/60 group-hover:text-white transition-colors">
+          <div className="space-y-4">
+            <div className="group p-6 rounded-2xl bg-black/40 hover:bg-white/5 transition-all duration-500 cursor-default">
+              <p className="text-2xl leading-relaxed text-white/60 group-hover:text-white transition-colors">
                 Bienvenue sur{" "}
                 <span className="text-blue-500 font-semibold">
                   Patate Clash of Clans
@@ -83,7 +83,7 @@ export default async function Home() {
               </p>
             </div>
 
-            <div className="group p-12 rounded-2xl bg-black/40 hover:bg-white/5 transition-all duration-500 cursor-default">
+            <div className="group p-6 rounded-2xl bg-black/40 hover:bg-white/5 transition-all duration-500 cursor-default">
               <p className="text-2xl leading-relaxed text-white/60 group-hover:text-white transition-colors">
                 Joueur passionné depuis 2018, mon engagement envers Clash of
                 Clans s'est particulièrement intensifié pendant la période du
@@ -93,7 +93,7 @@ export default async function Home() {
               </p>
             </div>
 
-            <div className="group p-12 rounded-2xl bg-black/40 hover:bg-white/5 transition-all duration-500 cursor-default">
+            <div className="group p-6 rounded-2xl bg-black/40 hover:bg-white/5 transition-all duration-500 cursor-default">
               <p className="text-2xl leading-relaxed text-white/60 group-hover:text-white transition-colors">
                 Ma mission est simple : vous offrir des comptes premium
                 soigneusement sélectionnés, à des prix justes et transparents,
