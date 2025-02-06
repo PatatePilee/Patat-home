@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import DarkLayout from '../layouts/DarkLayout';
+import DarkLayout from "../layouts/DarkLayout";
 
 type Account = {
   id: number;
@@ -19,27 +19,40 @@ type Account = {
 
 export default function ProductsPage() {
   const [accounts, setAccounts] = useState<Account[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchAccounts() {
+      setIsLoading(true);
       try {
-        const response = await fetch("/api/accounts");
-        if (response.ok) {
-          const data = await response.json();
-          const formattedAccounts = data.map((account: any) => ({
-            ...account,
-            imageUrl: account.imageUrl.startsWith("/")
-              ? account.imageUrl
-              : `/accounts/${account.imageUrl}`,
-            features: JSON.parse(account.features),
-            tags: [],
-            category: `hdv${account.hdv}`,
-            cartCount: account.cartCount,
-          }));
-          setAccounts(formattedAccounts);
+        const response = await fetch("/api/accounts", {
+          headers: {
+            'Cache-Control': 'no-cache'
+          }
+        });
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
         }
+        const data = await response.json();
+        const formattedAccounts = data.map((account: any) => ({
+          ...account,
+          imageUrl: account.imageUrl.startsWith("/")
+            ? account.imageUrl
+            : `/accounts/${account.imageUrl}`,
+          features: typeof account.features === 'string' 
+            ? JSON.parse(account.features)
+            : account.features,
+          tags: account.tags || [],
+          category: `hdv${account.hdv}`,
+          cartCount: account.cartCount || 0,
+        }));
+        setAccounts(formattedAccounts);
       } catch (error) {
         console.error("Erreur lors de la récupération des comptes:", error);
+        setError("Impossible de charger les comptes. Veuillez réessayer plus tard.");
+      } finally {
+        setIsLoading(false);
       }
     }
 
@@ -364,7 +377,7 @@ export default function ProductsPage() {
                               href={`/products/${account.id}`}
                               className="text-blue-600 hover:underline"
                             >
-                              Voir les détails →
+                              Voir les détails →{account.id}
                             </Link>
                           </div>
                         </div>
@@ -391,23 +404,24 @@ export default function ProductsPage() {
                         </div>
                       )}
 
-                  {filteredAccounts.length > 0 && filteredAccounts.length < 4 && (
-                    <div className="md:col-span-2 mt-8 p-6 border border-foreground/10 rounded-xl text-center bg-white/5">
-                      <h3 className="text-lg font-semibold mb-2 text-white">
-                        Vous ne trouvez pas ce que vous cherchez ?
-                      </h3>
-                      <p className="mb-4 text-white/80">
-                        Nous pouvons chercher un compte qui correspond exactement
-                        à vos besoins !
-                      </p>
-                      <Link
-                        href="/request"
-                        className="inline-flex items-center justify-center px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors"
-                      >
-                        Faire une demande personnalisée →
-                      </Link>
-                    </div>
-                  )}
+                  {filteredAccounts.length > 0 &&
+                    filteredAccounts.length < 4 && (
+                      <div className="md:col-span-2 mt-8 p-6 border border-foreground/10 rounded-xl text-center bg-white/5">
+                        <h3 className="text-lg font-semibold mb-2 text-white">
+                          Vous ne trouvez pas ce que vous cherchez ?
+                        </h3>
+                        <p className="mb-4 text-white/80">
+                          Nous pouvons chercher un compte qui correspond
+                          exactement à vos besoins !
+                        </p>
+                        <Link
+                          href="/request"
+                          className="inline-flex items-center justify-center px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+                        >
+                          Faire une demande personnalisée →
+                        </Link>
+                      </div>
+                    )}
                 </div>
               </div>
             </div>
