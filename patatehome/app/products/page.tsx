@@ -15,47 +15,46 @@ type Account = {
   category?: string;
   tags: string[];
   cartCount: number;
+  additionalImages?: string[];
 };
 
 export default function ProductsPage() {
   const [accounts, setAccounts] = useState<Account[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    async function fetchAccounts() {
-      setIsLoading(true);
-      try {
-        const response = await fetch("/api/accounts", {
-          headers: {
-            'Cache-Control': 'no-cache'
-          }
-        });
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-        const formattedAccounts = data.map((account: any) => ({
-          ...account,
-          imageUrl: account.imageUrl.startsWith("/")
-            ? account.imageUrl
-            : `/accounts/${account.imageUrl}`,
-          features: typeof account.features === 'string' 
+  const fetchAccounts = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch("/api/accounts");
+      if (!response.ok)
+        throw new Error("Erreur lors du chargement des comptes");
+      const data = await response.json();
+      const formattedAccounts = data.map((account: any) => ({
+        ...account,
+        imageUrl: account.imageUrl.startsWith("/")
+          ? account.imageUrl
+          : `/accounts/${account.imageUrl}`,
+        features:
+          typeof account.features === "string"
             ? JSON.parse(account.features)
             : account.features,
-          tags: account.tags || [],
-          category: `hdv${account.hdv}`,
-          cartCount: account.cartCount || 0,
-        }));
-        setAccounts(formattedAccounts);
-      } catch (error) {
-        console.error("Erreur lors de la récupération des comptes:", error);
-        setError("Impossible de charger les comptes. Veuillez réessayer plus tard.");
-      } finally {
-        setIsLoading(false);
-      }
+        tags: account.tags || [],
+        category: `hdv${account.hdv}`,
+        cartCount: account.cartCount || 0,
+      }));
+      setAccounts(formattedAccounts);
+    } catch (error) {
+      console.error("Erreur:", error);
+      setError(
+        "Impossible de charger les comptes. Veuillez réessayer plus tard."
+      );
+    } finally {
+      setLoading(false);
     }
+  };
 
+  useEffect(() => {
     fetchAccounts();
   }, []);
 

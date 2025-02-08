@@ -22,7 +22,7 @@ export default function AccountsTable() {
   useEffect(() => {
     const fetchAccounts = async () => {
       try {
-        const response = await fetch("/api/accounts");
+        const response = await fetch("/api/admin/accounts");
         if (response.ok) {
           const data = await response.json();
           setAccounts(
@@ -207,8 +207,8 @@ export default function AccountsTable() {
                   />
                 ) : (
                   <ul>
-                    {(typeof account.features === 'string' 
-                      ? JSON.parse(account.features) 
+                    {(typeof account.features === "string"
+                      ? JSON.parse(account.features)
                       : account.features
                     ).map((feature: string, index: number) => (
                       <li key={index}>• {feature}</li>

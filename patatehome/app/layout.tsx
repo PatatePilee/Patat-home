@@ -16,7 +16,18 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fr" className={font.className}>
-      <body suppressHydrationWarning className="bg-black min-h-screen text-white">
+      <body
+        suppressHydrationWarning
+        className="bg-black min-h-screen text-white"
+      >
+        <noscript>
+          <iframe
+            src="https://www.googletagmanager.com/ns.html?id=GTM-5ZVSNRSP"
+            height="0"
+            width="0"
+            style={{ display: "none", visibility: "hidden" }}
+          ></iframe>
+        </noscript>
         <Providers>
           <Header />
           <main className="16">{children}</main>

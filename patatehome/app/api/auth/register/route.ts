@@ -2,16 +2,18 @@ import { NextResponse } from "next/server";
 import { db } from "@/src/db";
 import { users } from "@/src/db/schema";
 import { hash } from "bcrypt";
+import { eq, or } from "drizzle-orm";
 
 export async function POST(request: Request) {
   try {
     const { username, email, password } = await request.json();
 
     // Vérification si l'utilisateur existe déjà
-    const existingUser = await db.query.users.findFirst({
-      where: (users, { eq, or }) =>
-        or(eq(users.email, email), eq(users.username, username)),
-    });
+    const [existingUser] = await db
+      .select()
+      .from(users)
+      .where(or(eq(users.email, email), eq(users.username, username)))
+      .limit(1);
 
     if (existingUser) {
       return NextResponse.json(
@@ -22,21 +24,33 @@ export async function POST(request: Request) {
 
     const hashedPassword = await hash(password, 10);
 
-    const newUser = await db
+    // Créer l'utilisateur
+    await db
       .insert(users)
       .values({
         username,
         email,
         password: hashedPassword,
         role: "user",
-      })
-      .returning();
+        createdAt: Date.now(),
+      });
 
-    const { password: _, ...userWithoutPassword } = newUser[0];
+    // Récupérer l'utilisateur nouvellement créé
+    const [newUser] = await db
+      .select({
+        id: users.id,
+        username: users.username,
+        email: users.email,
+        role: users.role,
+        createdAt: users.createdAt,
+      })
+      .from(users)
+      .where(eq(users.email, email))
+      .limit(1);
 
     return NextResponse.json({
       message: "Utilisateur créé avec succès",
-      user: userWithoutPassword,
+      user: newUser,
     });
   } catch (error) {
     console.error("Erreur lors de la création de l'utilisateur:", error);
