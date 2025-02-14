@@ -26,7 +26,7 @@ export default function ProductsPage() {
   const fetchAccounts = async () => {
     try {
       setLoading(true);
-      const response = await fetch("/api/accounts");
+      const response = await fetch("/api/admin/accounts");
       if (!response.ok)
         throw new Error("Erreur lors du chargement des comptes");
       const data = await response.json();
@@ -376,7 +376,7 @@ export default function ProductsPage() {
                               href={`/products/${account.id}`}
                               className="text-blue-600 hover:underline"
                             >
-                              Voir les détails →{account.id}
+                              Voir les détails
                             </Link>
                           </div>
                         </div>
