@@ -22,7 +22,7 @@ export async function GET() {
         return {
           ...account,
           features: JSON.parse(account.features),
-          additionalImages: additionalImages.map((img) => img.imageUrl),
+          additionalImages: additionalImages.map((img) => img.filename),
         };
       })
     );

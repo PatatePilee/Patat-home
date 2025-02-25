@@ -9,13 +9,13 @@ type Account = {
   hdv: number;
   level: number;
   price: number;
-  imageUrl: string;
   features: string[];
   status: string;
   category?: string;
   tags: string[];
   cartCount: number;
   additionalImages?: string[];
+  imageFilename?: string;
 };
 
 export default function ProductsPage() {
@@ -32,9 +32,6 @@ export default function ProductsPage() {
       const data = await response.json();
       const formattedAccounts = data.map((account: any) => ({
         ...account,
-        imageUrl: account.imageUrl.startsWith("/")
-          ? account.imageUrl
-          : `/accounts/${account.imageUrl}`,
         features:
           typeof account.features === "string"
             ? JSON.parse(account.features)
@@ -342,7 +339,7 @@ export default function ProductsPage() {
                         >
                           <div className="relative aspect-video mb-4 rounded-lg overflow-hidden">
                             <Image
-                              src={account.imageUrl}
+                              src={`/accounts/${account.imageFilename}`}
                               alt={`HDV ${account.hdv}`}
                               fill
                               className="object-cover"

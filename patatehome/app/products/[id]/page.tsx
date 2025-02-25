@@ -4,13 +4,14 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import DarkLayout from "@/app/layouts/DarkLayout";
+import AccountImage from "@/app/components/AccountImage";
 
 type Account = {
   id: number;
   hdv: number;
   level: number;
   price: number;
-  imageUrl: string;
+  imageFilename: string;
   features: string[];
   additionalImages?: string[];
   status: string;
@@ -106,7 +107,10 @@ export default function AccountDetailPage({
       </DarkLayout>
     );
 
-  const allImages = [account.imageUrl, ...(account.additionalImages || [])];
+  const allImages = [
+    account.imageFilename,
+    ...(account.additionalImages || []),
+  ];
 
   return (
     <DarkLayout>
@@ -115,70 +119,41 @@ export default function AccountDetailPage({
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             {/* Galerie d'images */}
             <div className="space-y-6">
-              <div className="relative aspect-video rounded-xl overflow-hidden group">
-                <Image
-                  src={allImages[selectedImage]}
-                  alt={`HDV ${account.hdv}`}
-                  fill
-                  className="object-cover"
-                  priority
-                />
-                {allImages.length > 1 && (
-                  <>
-                    {/* Indicateur de défilement */}
-                    <div className="absolute inset-0 flex items-center justify-between p-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button
-                        onClick={() =>
-                          setSelectedImage((prev) =>
-                            prev === 0 ? allImages.length - 1 : prev - 1
-                          )
-                        }
-                        className="bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-colors"
-                      >
-                        ←
-                      </button>
-                      <button
-                        onClick={() =>
-                          setSelectedImage((prev) =>
-                            prev === allImages.length - 1 ? 0 : prev + 1
-                          )
-                        }
-                        className="bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-colors"
-                      >
-                        →
-                      </button>
-                    </div>
-                    {/* Indicateur de position */}
-                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/50 px-3 py-1 rounded-full text-white text-sm opacity-0 group-hover:opacity-100 transition-opacity">
-                      {selectedImage + 1} / {allImages.length}
-                    </div>
-                  </>
-                )}
-              </div>
-
-              {/* Miniatures */}
+              <AccountImage
+                src={`/accounts/${account.imageFilename}`}
+                alt={`HDV ${account.hdv}`}
+                className="object-cover"
+              />
               {allImages.length > 1 && (
-                <div className="grid grid-cols-6 gap-2">
-                  {allImages.map((img, index) => (
+                <>
+                  {/* Indicateur de défilement */}
+                  <div className="absolute inset-0 flex items-center justify-between p-4 opacity-0 group-hover:opacity-100 transition-opacity">
                     <button
-                      key={index}
-                      onClick={() => setSelectedImage(index)}
-                      className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-colors ${
-                        selectedImage === index
-                          ? "border-blue-500"
-                          : "border-transparent hover:border-blue-500/50"
-                      }`}
+                      onClick={() =>
+                        setSelectedImage((prev) =>
+                          prev === 0 ? allImages.length - 1 : prev - 1
+                        )
+                      }
+                      className="bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-colors"
                     >
-                      <Image
-                        src={img}
-                        alt=""
-                        fill
-                        className="object-cover"
-                        sizes="(max-width: 768px) 16vw, 8vw"
-                      />
+                      ←
                     </button>
-                  ))}
-                </div>
+                    <button
+                      onClick={() =>
+                        setSelectedImage((prev) =>
+                          prev === allImages.length - 1 ? 0 : prev + 1
+                        )
+                      }
+                      className="bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-colors"
+                    >
+                      →
+                    </button>
+                  </div>
+                  {/* Indicateur de position */}
+                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/50 px-3 py-1 rounded-full text-white text-sm opacity-0 group-hover:opacity-100 transition-opacity">
+                    {selectedImage + 1} / {allImages.length}
+                  </div>
+                </>
               )}
             </div>
 

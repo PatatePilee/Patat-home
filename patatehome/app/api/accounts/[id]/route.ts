@@ -24,7 +24,7 @@ export async function GET(
 
     return NextResponse.json({
       ...account,
-      additionalImages: additionalImages.map((img) => img.imageUrl),
+      additionalImages: additionalImages.map((img) => img.filename),
     });
   } catch (error) {
     console.error("Erreur:", error);

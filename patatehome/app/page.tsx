@@ -4,11 +4,19 @@ import { db } from "../src/db";
 import { accounts } from "../src/db/schema";
 import AccountImage from "./components/AccountImage";
 import FeaturedCarousel from "./components/FeaturedCarousel";
+import { desc } from "drizzle-orm";
 
 async function getAccounts() {
   try {
-    const allAccounts = await db.select().from(accounts);
-    return allAccounts;
+    const allAccounts = await db
+      .select()
+      .from(accounts)
+      .orderBy(desc(accounts.id));
+
+    return allAccounts.map((account) => ({
+      ...account,
+      features: JSON.parse(account.features),
+    }));
   } catch (error) {
     console.error("Erreur lors de la récupération des comptes:", error);
     return [];
@@ -17,13 +25,17 @@ async function getAccounts() {
 
 export default async function Home() {
   const accounts = await getAccounts();
-  // Sélectionner les 3 premiers comptes disponibles pour la section "en vedette"
+
   const featuredAccounts = accounts
-    .filter((account) => account.status === "available")
+    .filter(
+      (account) => account?.status === "available" && account?.imageFilename
+    )
     .slice(0, 3)
     .map((account) => ({
       ...account,
-      features: JSON.parse(account.features),
+      features: Array.isArray(account.features)
+        ? account.features
+        : JSON.parse(account.features),
     }));
 
   return (
@@ -61,7 +73,9 @@ export default async function Home() {
           <h2 className="text-4xl font-bold text-center mb-12">
             Comptes en Vedette
           </h2>
-          <FeaturedCarousel accounts={featuredAccounts} />
+          {featuredAccounts.length > 0 && (
+            <FeaturedCarousel accounts={featuredAccounts} />
+          )}
         </div>
       </section>
 

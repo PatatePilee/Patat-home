@@ -17,12 +17,16 @@ export const accounts = sqliteTable("accounts", {
   hdv: integer("hdv").notNull(),
   level: integer("level").notNull(),
   price: integer("price").notNull(),
-  imageUrl: text("image_url").notNull(),
+  imageFilename: text("image_filename").notNull(),
   features: text("features").notNull(),
   status: text("status").notNull().default("available"),
-  createdAt: integer("created_at").notNull(),
-  updatedAt: integer("updated_at").notNull(),
   cartCount: integer("cart_count").notNull().default(0),
+  createdAt: integer("created_at")
+    .notNull()
+    .default(sql`(unixepoch())`),
+  updatedAt: integer("updated_at")
+    .notNull()
+    .default(sql`(unixepoch())`),
 });
 
 export const accountAdditionalImages = sqliteTable(
@@ -32,7 +36,7 @@ export const accountAdditionalImages = sqliteTable(
     accountId: integer("account_id")
       .notNull()
       .references(() => accounts.id, { onDelete: "cascade" }),
-    imageUrl: text("image_url").notNull(),
+    filename: text("filename").notNull(),
     displayOrder: integer("display_order").notNull().default(0),
     createdAt: integer("created_at")
       .notNull()

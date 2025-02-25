@@ -30,7 +30,7 @@ export async function PUT(
         hdv: parseInt(accountData.hdv),
         level: parseInt(accountData.level),
         price: parseInt(accountData.price),
-        imageUrl: accountData.imageUrl,
+        imageFilename: accountData.imageFilename,
         features: JSON.stringify(accountData.features),
         status: accountData.status,
         updatedAt: Math.floor(Date.now() / 1000),
@@ -38,7 +38,9 @@ export async function PUT(
       .where(eq(accounts.id, parseInt(params.id)))
       .returning();
 
-    return NextResponse.json(updatedAccount[0]);
+    return NextResponse.json({
+      ...updatedAccount[0],
+    });
   } catch (error) {
     return NextResponse.json(
       { error: "Erreur lors de la modification du compte" },

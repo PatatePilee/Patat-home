@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { db } from "@/src/db";
 import { accounts, accountAdditionalImages } from "@/src/db/schema";
 import { eq, desc } from "drizzle-orm";
+import { saveAccountImage } from "@/src/utils/imageStorage";
 
 export async function GET() {
   try {
@@ -10,7 +11,6 @@ export async function GET() {
       .from(accounts)
       .orderBy(desc(accounts.id));
 
-    // Récupérer les images additionnelles pour chaque compte
     const accountsWithImages = await Promise.all(
       allAccounts.map(async (account) => {
         const additionalImages = await db
@@ -22,7 +22,7 @@ export async function GET() {
         return {
           ...account,
           features: JSON.parse(account.features),
-          additionalImages: additionalImages.map((img) => img.imageUrl),
+          additionalImages: additionalImages.map((img) => img.filename),
         };
       })
     );
@@ -37,57 +37,59 @@ export async function GET() {
   }
 }
 
-export const POST = async (request: Request) => {
+export async function POST(request: Request) {
   try {
-    const accountData = await request.json();
-    console.log("Données reçues:", accountData);
+    const formData = await request.formData();
 
-    // Créer le compte
-    await db.insert(accounts).values({
-      hdv: parseInt(accountData.hdv),
-      level: parseInt(accountData.level),
-      price: parseInt(accountData.price),
-      imageUrl: accountData.imageUrl,
-      features: JSON.stringify(accountData.features),
-      status: accountData.status || "available",
+    // Handle image upload
+    const imageFile = formData.get("image") as File;
+    let imageFilename = "";
+
+    if (imageFile) {
+      imageFilename = await saveAccountImage(imageFile);
+    }
+
+    // Create account
+    const accountData = {
+      hdv: parseInt(formData.get("hdv") as string),
+      level: parseInt(formData.get("level") as string),
+      price: parseInt(formData.get("price") as string),
+      imageFilename: imageFilename,
+      features: formData.get("features") as string,
+      status: (formData.get("status") as string) || "available",
+      cartCount: 0,
       createdAt: Math.floor(Date.now() / 1000),
       updatedAt: Math.floor(Date.now() / 1000),
-    });
+    };
 
-    // Récupérer le compte nouvellement créé
     const [newAccount] = await db
-      .select()
-      .from(accounts)
-      .orderBy(desc(accounts.id))
-      .limit(1);
+      .insert(accounts)
+      .values(accountData)
+      .returning();
 
-    if (accountData.additionalImages?.length > 0) {
-      const additionalImagesData = accountData.additionalImages
-        .filter((url: string) => url.trim() !== "")
-        .map((url: string, index: number) => ({
+    // Handle additional images
+    const additionalImages = [];
+    const entries = Array.from(formData.entries());
+
+    for (const [key, value] of entries) {
+      if (key.startsWith("additionalImages[") && value instanceof File) {
+        const filename = await saveAccountImage(value);
+        additionalImages.push({
           accountId: newAccount.id,
-          imageUrl: url,
-          displayOrder: index,
-          createdAt: Math.floor(Date.now() / 1000),
-        }));
-
-      if (additionalImagesData.length > 0) {
-        await db.insert(accountAdditionalImages).values(additionalImagesData);
+          filename: filename,
+          displayOrder: parseInt(key.match(/\[(\d+)\]/)?.[1] || "0"),
+        });
       }
     }
 
-    // Récupérer les images additionnelles
-    const additionalImages = await db
-      .select()
-      .from(accountAdditionalImages)
-      .where(eq(accountAdditionalImages.accountId, newAccount.id))
-      .orderBy(accountAdditionalImages.displayOrder);
-
+    if (additionalImages.length > 0) {
+      await db.insert(accountAdditionalImages).values(additionalImages);
+    }
     return NextResponse.json({
       message: "Compte créé avec succès",
       account: {
         ...newAccount,
-        additionalImages: additionalImages.map((img) => img.imageUrl),
+        imageUrl: `/accounts/${newAccount.imageFilename}`,
       },
     });
   } catch (error) {
@@ -97,4 +99,4 @@ export const POST = async (request: Request) => {
       { status: 500 }
     );
   }
-};
+}

@@ -1,5 +1,13 @@
 "use client";
-import { useState, useEffect, JSXElementConstructor, Key, ReactElement, ReactNode, ReactPortal } from "react";
+import {
+  useState,
+  useEffect,
+  JSXElementConstructor,
+  Key,
+  ReactElement,
+  ReactNode,
+  ReactPortal,
+} from "react";
 import AccountsTable from "./components/AccountsTable";
 import UsersTable from "./components/UsersTable";
 import ReviewsTable from "./components/ReviewsTable";
@@ -24,8 +32,8 @@ export default function AdminPage() {
     hdv: "",
     level: "",
     price: "",
-    imageUrl: "",
-    additionalImages: [""],
+    imageFile: null as File | null,
+    additionalImageFiles: [] as File[],
     features: "",
     status: "available",
   });
@@ -62,22 +70,25 @@ export default function AdminPage() {
 
   const fetchPages = async () => {
     try {
-      const response = await fetch('/api/admin/pages');
+      const response = await fetch("/api/admin/pages");
       if (response.ok) {
         const data = await response.json();
         setPages(data);
       }
     } catch (error) {
-      console.error('Error fetching pages:', error);
+      console.error("Error fetching pages:", error);
     }
   };
 
-  async function handleTogglePage(id: Key | null | undefined, isActive: number) {
+  async function handleTogglePage(
+    id: Key | null | undefined,
+    isActive: number
+  ) {
     try {
       const response = await fetch(`/api/admin/pages/${id}`, {
-        method: 'PATCH',
+        method: "PATCH",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ isActive: isActive === 1 ? 0 : 1 }),
       });
@@ -86,22 +97,36 @@ export default function AdminPage() {
         fetchPages(); // Refresh pages after toggle
       }
     } catch (error) {
-      console.error('Error toggling page:', error);
+      console.error("Error toggling page:", error);
     }
   }
 
   const handleCreateAccount = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      const formData = new FormData();
+      formData.append("hdv", accountForm.hdv);
+      formData.append("level", accountForm.level);
+      formData.append("price", accountForm.price);
+      formData.append(
+        "features",
+        JSON.stringify(accountForm.features.split("\n"))
+      );
+      formData.append("status", accountForm.status);
+
+      if (accountForm.imageFile) {
+        formData.append("image", accountForm.imageFile);
+      }
+
+      accountForm.additionalImageFiles?.forEach((file, index) => {
+        if (file) {
+          formData.append(`additionalImages[${index}]`, file);
+        }
+      });
+
       const response = await fetch("/api/admin/accounts", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          ...accountForm,
-          features: accountForm.features.split("\n"),
-        }),
+        body: formData,
       });
 
       if (response.ok) {
@@ -109,8 +134,8 @@ export default function AdminPage() {
           hdv: "",
           level: "",
           price: "",
-          imageUrl: "",
-          additionalImages: [""],
+          imageFile: null,
+          additionalImageFiles: [],
           features: "",
           status: "available",
         });
@@ -245,23 +270,25 @@ export default function AdminPage() {
   const handleAddImageField = () => {
     setAccountForm((prev) => ({
       ...prev,
-      additionalImages: [...prev.additionalImages, ""],
+      additionalImageFiles: [...prev.additionalImageFiles, new File([""], "")],
     }));
   };
 
   const handleImageChange = (index: number, value: string) => {
-    const newAdditionalImages = [...accountForm.additionalImages];
-    newAdditionalImages[index] = value;
+    const newAdditionalImages = [...accountForm.additionalImageFiles];
+    newAdditionalImages[index] = new File([value], "");
     setAccountForm((prev) => ({
       ...prev,
-      additionalImages: newAdditionalImages,
+      additionalImageFiles: newAdditionalImages,
     }));
   };
 
   const handleRemoveImageField = (index: number) => {
     setAccountForm((prev) => ({
       ...prev,
-      additionalImages: prev.additionalImages.filter((_, i) => i !== index),
+      additionalImageFiles: prev.additionalImageFiles.filter(
+        (_, i) => i !== index
+      ),
     }));
   };
 
@@ -529,13 +556,12 @@ export default function AdminPage() {
                   <div className="md:col-span-2 space-y-4">
                     <div className="flex items-center space-x-4">
                       <input
-                        type="text"
-                        placeholder="URL de l'image principale"
-                        value={accountForm.imageUrl}
+                        type="file"
+                        accept="image/*"
                         onChange={(e) =>
                           setAccountForm({
                             ...accountForm,
-                            imageUrl: e.target.value,
+                            imageFile: e.target.files?.[0] || null,
                           })
                         }
                         className="flex-1 p-2 rounded bg-white/10 text-white"
@@ -543,14 +569,14 @@ export default function AdminPage() {
                       <span className="text-white/60">Image principale</span>
                     </div>
 
-                    {accountForm.additionalImages.map((url, index) => (
+                    {accountForm.additionalImageFiles.map((file, index) => (
                       <div key={index} className="flex items-center space-x-4">
                         <input
                           type="text"
                           placeholder={`URL de l'image additionnelle ${
                             index + 1
                           }`}
-                          value={url}
+                          value={file.name}
                           onChange={(e) =>
                             handleImageChange(index, e.target.value)
                           }
@@ -677,34 +703,95 @@ export default function AdminPage() {
                 Paramètres des pages
               </h2>
               <div className="space-y-4">
-                {pages.map((page: { id: Key | null | undefined; title: string | number | bigint | boolean | ReactElement<unknown, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | Promise<string | number | bigint | boolean | ReactPortal | ReactElement<unknown, string | JSXElementConstructor<any>> | Iterable<ReactNode> | null | undefined> | null | undefined; path: string | number | bigint | boolean | ReactElement<unknown, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | Promise<string | number | bigint | boolean | ReactPortal | ReactElement<unknown, string | JSXElementConstructor<any>> | Iterable<ReactNode> | null | undefined> | null | undefined; isActive: number; }) => (
-                  <div
-                    key={page.id}
-                    className="flex items-center justify-between p-4 bg-white/10 rounded-lg"
-                  >
-                    <div>
-                      <h3 className="text-lg font-medium text-white">
-                        {page.title}
-                      </h3>
-                      <p className="text-sm text-gray-400">{page.path}</p>
-                    </div>
-                    <Switch
-                      checked={page.isActive === 1}
-                      onChange={() => handleTogglePage(page.id, page.isActive)}
-                      className={`${
-                        page.isActive === 1 ? "bg-blue-600" : "bg-gray-600"
-                      } relative inline-flex h-6 w-11 items-center rounded-full`}
+                {pages.map(
+                  (page: {
+                    id: Key | null | undefined;
+                    title:
+                      | string
+                      | number
+                      | bigint
+                      | boolean
+                      | ReactElement<
+                          unknown,
+                          string | JSXElementConstructor<any>
+                        >
+                      | Iterable<ReactNode>
+                      | ReactPortal
+                      | Promise<
+                          | string
+                          | number
+                          | bigint
+                          | boolean
+                          | ReactPortal
+                          | ReactElement<
+                              unknown,
+                              string | JSXElementConstructor<any>
+                            >
+                          | Iterable<ReactNode>
+                          | null
+                          | undefined
+                        >
+                      | null
+                      | undefined;
+                    path:
+                      | string
+                      | number
+                      | bigint
+                      | boolean
+                      | ReactElement<
+                          unknown,
+                          string | JSXElementConstructor<any>
+                        >
+                      | Iterable<ReactNode>
+                      | ReactPortal
+                      | Promise<
+                          | string
+                          | number
+                          | bigint
+                          | boolean
+                          | ReactPortal
+                          | ReactElement<
+                              unknown,
+                              string | JSXElementConstructor<any>
+                            >
+                          | Iterable<ReactNode>
+                          | null
+                          | undefined
+                        >
+                      | null
+                      | undefined;
+                    isActive: number;
+                  }) => (
+                    <div
+                      key={page.id}
+                      className="flex items-center justify-between p-4 bg-white/10 rounded-lg"
                     >
-                      <span
+                      <div>
+                        <h3 className="text-lg font-medium text-white">
+                          {page.title}
+                        </h3>
+                        <p className="text-sm text-gray-400">{page.path}</p>
+                      </div>
+                      <Switch
+                        checked={page.isActive === 1}
+                        onChange={() =>
+                          handleTogglePage(page.id, page.isActive)
+                        }
                         className={`${
-                          page.isActive === 1
-                            ? "translate-x-6"
-                            : "translate-x-1"
-                        } inline-block h-4 w-4 transform rounded-full bg-white transition-transform`}
-                      />
-                    </Switch>
-                  </div>
-                ))}
+                          page.isActive === 1 ? "bg-blue-600" : "bg-gray-600"
+                        } relative inline-flex h-6 w-11 items-center rounded-full`}
+                      >
+                        <span
+                          className={`${
+                            page.isActive === 1
+                              ? "translate-x-6"
+                              : "translate-x-1"
+                          } inline-block h-4 w-4 transform rounded-full bg-white transition-transform`}
+                        />
+                      </Switch>
+                    </div>
+                  )
+                )}
               </div>
             </div>
           </>

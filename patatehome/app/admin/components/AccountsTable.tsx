@@ -8,7 +8,7 @@ type EditingAccount = {
   hdv: string;
   level: string;
   price: string;
-  imageUrl: string;
+  imageFilename: string;
   features: string;
   status: string;
 };
@@ -48,7 +48,7 @@ export default function AccountsTable() {
       hdv: account.hdv.toString(),
       level: account.level.toString(),
       price: account.price.toString(),
-      imageUrl: account.imageUrl,
+      imageFilename: account.imageFilename,
       features: Array.isArray(account.features)
         ? account.features.join("\n")
         : account.features,
@@ -82,7 +82,7 @@ export default function AccountsTable() {
           hdv: parseInt(editingAccount.hdv),
           level: parseInt(editingAccount.level),
           price: parseInt(editingAccount.price),
-          imageUrl: editingAccount.imageUrl,
+          imageFilename: editingAccount.imageFilename,
           features: editingAccount.features.split("\n"),
           status: editingAccount.status,
         }),
@@ -176,18 +176,18 @@ export default function AccountsTable() {
                 {editingAccount?.id === account.id ? (
                   <input
                     type="text"
-                    value={editingAccount.imageUrl}
+                    value={editingAccount.imageFilename}
                     onChange={(e) =>
                       setEditingAccount({
                         ...editingAccount,
-                        imageUrl: e.target.value,
+                        imageFilename: e.target.value,
                       })
                     }
                     className="w-full p-1 bg-white/10 rounded"
                   />
                 ) : (
                   <img
-                    src={account.imageUrl}
+                    src={`/accounts/${account.imageFilename}`}
                     alt={`HDV ${account.hdv}`}
                     className="w-20 h-20 object-cover rounded"
                   />

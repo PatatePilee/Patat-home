@@ -93,7 +93,7 @@ export async function GET(request: Request) {
           hdv: accounts.hdv,
           level: accounts.level,
           price: accounts.price,
-          imageUrl: accounts.imageUrl,
+          imageFilename: accounts.imageFilename,
           features: accounts.features,
         },
       })
@@ -101,7 +101,17 @@ export async function GET(request: Request) {
       .leftJoin(accounts, eq(cartItems.accountId, accounts.id))
       .where(eq(cartItems.userId, parseInt(userId)));
 
-    return NextResponse.json(items);
+    // Transformer les données pour inclure l'URL de l'image
+    const itemsWithImageUrls = items.map((item) => ({
+      ...item,
+      account: item.account
+        ? {
+            ...item.account,
+          }
+        : null,
+    }));
+
+    return NextResponse.json(itemsWithImageUrls);
   } catch (error) {
     console.error("Erreur lors de la récupération du panier:", error);
     return NextResponse.json(
