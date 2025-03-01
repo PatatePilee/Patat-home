@@ -15,11 +15,7 @@ export default function AccountImage({
 }: AccountImageProps) {
   const [error, setError] = useState(false);
 
-  const imageSrc = error
-    ? "/placeholder-account.jpg"
-    : src.startsWith("/")
-    ? src
-    : `/accounts/${src}`;
+  const imageSrc = error ? "/placeholder-account.jpg" : src;
 
   return (
     <div className="relative w-full h-full">
@@ -27,8 +23,7 @@ export default function AccountImage({
         src={imageSrc}
         alt={alt}
         fill
-        className={`object-cover group-hover:scale-110 transition-transform duration-500 ${className}`}
-        sizes="(max-width: 768px) 100vw, 50vw"
+        className={`object-cover ${className}`}
         onError={() => setError(true)}
       />
     </div>
