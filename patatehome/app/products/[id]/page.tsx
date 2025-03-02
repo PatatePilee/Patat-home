@@ -107,26 +107,28 @@ export default function AccountDetailPage({
       </DarkLayout>
     );
 
-  const allImages = [
-    account.imageFilename,
-    ...(account.additionalImages || []),
-  ];
+  const allImages = account.additionalImages
+    ? [
+        `/accounts/${account.imageFilename}`,
+        ...account.additionalImages.map((img) => `/accounts/${img}`),
+      ]
+    : [`/accounts/${account.imageFilename}`];
 
   return (
     <DarkLayout>
       <div className="min-h-screen p-8">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-            {/* Galerie d'images */}
             <div className="space-y-6">
-              <AccountImage
-                src={`/accounts/${account.imageFilename}`}
-                alt={`HDV ${account.hdv}`}
-                className="object-cover"
-              />
-              {allImages.length > 1 && (
-                <>
-                  {/* Indicateur de défilement */}
+              <div className="relative group h-[400px]">
+                <Image
+                  src={allImages[selectedImage]}
+                  alt={`HDV ${account.hdv}`}
+                  fill
+                  className="object-cover rounded-lg"
+                  priority
+                />
+                {allImages.length > 1 && (
                   <div className="absolute inset-0 flex items-center justify-between p-4 opacity-0 group-hover:opacity-100 transition-opacity">
                     <button
                       onClick={() =>
@@ -149,12 +151,34 @@ export default function AccountDetailPage({
                       →
                     </button>
                   </div>
-                  {/* Indicateur de position */}
-                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/50 px-3 py-1 rounded-full text-white text-sm opacity-0 group-hover:opacity-100 transition-opacity">
-                    {selectedImage + 1} / {allImages.length}
+                )}
+              </div>
+
+              <div className="flex space-x-2 mt-4">
+                {allImages.map((image, index) => (
+                  <div
+                    key={index}
+                    onClick={() => setSelectedImage(index)}
+                    className={`relative w-24 h-24 cursor-pointer overflow-hidden rounded-lg border-2 ${
+                      selectedImage === index
+                        ? "border-blue-500"
+                        : "border-transparent"
+                    }`}
+                  >
+                    <Image
+                      src={image}
+                      alt={`Miniature ${index + 1}`}
+                      fill
+                      sizes="(max-width: 768px) 20vw, 10vw"
+                      className={`object-cover transition-opacity duration-200 ${
+                        selectedImage === index
+                          ? "opacity-100"
+                          : "opacity-70 hover:opacity-100"
+                      }`}
+                    />
                   </div>
-                </>
-              )}
+                ))}
+              </div>
             </div>
 
             {/* Informations du compte */}

@@ -33,7 +33,7 @@ export default function AdminPage() {
     level: "",
     price: "",
     imageFile: null as File | null,
-    additionalImageFiles: [] as File[],
+    additionalImageFiles: [] as (File | null)[],
     features: "",
     status: "available",
   });
@@ -270,13 +270,16 @@ export default function AdminPage() {
   const handleAddImageField = () => {
     setAccountForm((prev) => ({
       ...prev,
-      additionalImageFiles: [...prev.additionalImageFiles, new File([""], "")],
+      additionalImageFiles: [
+        ...prev.additionalImageFiles,
+        null,
+      ] as (File | null)[],
     }));
   };
 
-  const handleImageChange = (index: number, value: string) => {
+  const handleImageChange = (index: number, file: File) => {
     const newAdditionalImages = [...accountForm.additionalImageFiles];
-    newAdditionalImages[index] = new File([value], "");
+    newAdditionalImages[index] = file;
     setAccountForm((prev) => ({
       ...prev,
       additionalImageFiles: newAdditionalImages,
@@ -572,14 +575,21 @@ export default function AdminPage() {
                     {accountForm.additionalImageFiles.map((file, index) => (
                       <div key={index} className="flex items-center space-x-4">
                         <input
-                          type="text"
-                          placeholder={`URL de l'image additionnelle ${
-                            index + 1
-                          }`}
-                          value={file.name}
-                          onChange={(e) =>
-                            handleImageChange(index, e.target.value)
-                          }
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => {
+                            const files = e.target.files;
+                            if (files && files[0]) {
+                              const newAdditionalImages = [
+                                ...accountForm.additionalImageFiles,
+                              ];
+                              newAdditionalImages[index] = files[0];
+                              setAccountForm((prev) => ({
+                                ...prev,
+                                additionalImageFiles: newAdditionalImages,
+                              }));
+                            }
+                          }}
                           className="flex-1 p-2 rounded bg-white/10 text-white"
                         />
                         <button
