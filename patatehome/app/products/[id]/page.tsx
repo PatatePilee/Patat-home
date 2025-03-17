@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import DarkLayout from "@/app/layouts/DarkLayout";
 import AccountImage from "@/app/components/AccountImage";
+import { debug, addDebugElement } from "@/app/debug";
 
 type Account = {
   id: number;
@@ -32,28 +33,46 @@ export default function AccountDetailPage({
   const [error, setError] = useState<string | null>(null);
 
   // Récupérer l'ID depuis params ou searchParams si nécessaire
-  const accountId = params.id !== "[id]" ? params.id : searchParams?.id || "";
+  const id = params.id === "[id]" ? searchParams?.id || "" : params.id;
+
+  console.log(`Page produit - ID utilisé: ${id}, Type: ${typeof id}`);
+  console.log(
+    `Page produit - params.id: ${params.id}, Type: ${typeof params.id}`
+  );
+  console.log(`Page produit - searchParams:`, searchParams);
 
   useEffect(() => {
-    if (!accountId) {
-      setError("ID de produit manquant");
+    // Extraire l'ID directement de l'URL plutôt que des props
+    const urlParts = window.location.pathname.split("/");
+    const urlId = urlParts[urlParts.length - 1];
+
+    // Vérifier si l'ID extrait de l'URL est un nombre
+    const numericId = !isNaN(parseInt(urlId)) ? urlId : "";
+
+    console.log(`ID extrait directement de l'URL: ${numericId}`);
+    // addDebugElement("ID extrait de l'URL", {
+    //   pathname: window.location.pathname,
+    //   urlParts,
+    //   extractedId: urlId,
+    //   numericId,
+    // });
+
+    if (!numericId) {
+      setError("ID de produit manquant ou invalide");
       setIsLoading(false);
       return;
     }
-
-    console.log(`ID du produit à charger: ${accountId}`);
 
     async function fetchAccount() {
       setIsLoading(true);
       setError(null);
 
       try {
-        console.log(`Récupération du compte ID: ${accountId}`);
-
-        // Utiliser l'URL absolue qui fonctionnera même en production
+        // Utiliser l'ID extrait directement de l'URL
         const baseUrl = window.location.origin;
-        const url = `${baseUrl}/api/accounts/${accountId}`;
-        console.log(`URL API: ${url}`);
+        const url = `${baseUrl}/api/accounts/${numericId}`;
+
+        // addDebugElement("Chargement avec ID de l'URL", { numericId, url });
 
         const response = await fetch(url, {
           method: "GET",
@@ -64,27 +83,31 @@ export default function AccountDetailPage({
           },
         });
 
-        console.log(`Statut de la réponse: ${response.status}`);
+        debug.log(`Statut de la réponse: ${response.status}`);
 
         if (!response.ok) {
           const errorData = await response.json();
           const errorMessage =
             errorData.error || `Erreur serveur: ${response.status}`;
-          console.error(`Erreur API:`, errorMessage);
+          debug.error(`Erreur API:`, errorMessage);
           setError(errorMessage);
+          // addDebugElement("Erreur API", errorData);
           return;
         }
 
         const data = await response.json();
-        console.log(`Données reçues:`, {
-          id: data.id,
-          hdv: data.hdv,
-          level: data.level,
-          hasFeatures: !!data.features,
-          featuresType: typeof data.features,
-          hasAdditionalImages: !!data.additionalImages,
-          additionalImagesCount: data.additionalImages?.length,
-        });
+        // debug.log(`Données reçues:`, {
+        //   id: data.id,
+        //   hdv: data.hdv,
+        //   level: data.level,
+        //   hasFeatures: !!data.features,
+        //   featuresType: typeof data.features,
+        //   hasAdditionalImages: !!data.additionalImages,
+        //   additionalImagesCount: data.additionalImages?.length,
+        // });
+
+        // Si tout est OK, ajouter les données à l'interface visuelle en mode debug
+        //addDebugElement("Données reçues", data);
 
         // Si features est déjà un tableau (grâce aux changements dans l'API), on l'utilise tel quel
         // Sinon on essaie de le parser
@@ -111,7 +134,7 @@ export default function AccountDetailPage({
     }
 
     fetchAccount();
-  }, [accountId]);
+  }, []);
 
   const handleAddToCart = async (accountId: number) => {
     const userStr = localStorage.getItem("user");

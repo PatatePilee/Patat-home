@@ -7,30 +7,67 @@ export async function GET(
   request: Request,
   { params }: { params: { id: string } }
 ) {
-  console.log(`Début GET /api/accounts/${params.id}`);
+  // Extraire l'ID de la manière la plus robuste possible
+  const url = new URL(request.url);
+  const urlPath = url.pathname;
+  const pathParts = urlPath.split("/");
 
-  // Récupérer l'ID depuis les params OU depuis la query string
-  let id = params.id;
+  // Essayer d'extraire l'ID directement de l'URL (dernier segment)
+  const lastSegment = pathParts[pathParts.length - 1];
 
-  // Si l'ID n'est pas dans params, essayons de le récupérer de l'URL
-  if (!id || id === "[id]") {
-    const url = new URL(request.url);
-    id = url.searchParams.get("id") || "";
-    console.log(`ID récupéré depuis searchParams: ${id}`);
+  // Vérifier si le dernier segment est numérique
+  let id: string = "";
+
+  // Méthode 1: Prendre l'ID directement du chemin s'il est numérique
+  if (lastSegment && !isNaN(parseInt(lastSegment))) {
+    id = lastSegment;
+    console.log(`[API] ID extrait du dernier segment de l'URL: ${id}`);
+  }
+  // Méthode 2: Essayer les params si le dernier segment n'est pas numérique
+  else if (params.id && params.id !== "[id]" && !isNaN(parseInt(params.id))) {
+    id = params.id;
+    console.log(`[API] ID extrait des params: ${id}`);
+  }
+  // Méthode 3: Essayer les searchParams comme dernier recours
+  else {
+    const searchParamsId = url.searchParams.get("id");
+    if (searchParamsId && !isNaN(parseInt(searchParamsId))) {
+      id = searchParamsId;
+      console.log(`[API] ID extrait des searchParams: ${id}`);
+    }
   }
 
-  console.log(`Traitement pour ID: ${id}`);
+  console.log(`[API] Diagnostic complet:`, {
+    url: request.url,
+    urlPath,
+    pathParts,
+    lastSegment,
+    params,
+    searchParams: Object.fromEntries(url.searchParams.entries()),
+    extractedId: id,
+  });
 
   if (!id || isNaN(parseInt(id))) {
-    console.error("ID invalide:", id);
+    const errorMsg = `ID invalide: '${id}'`;
+    console.error(`[API] ${errorMsg}`);
     return NextResponse.json(
-      { error: "ID de compte invalide" },
+      {
+        error: errorMsg,
+        diagnostic: {
+          url: request.url,
+          urlPath,
+          pathParts,
+          lastSegment,
+          params,
+          searchParams: Object.fromEntries(url.searchParams.entries()),
+        },
+      },
       { status: 400 }
     );
   }
 
   const accountId = parseInt(id);
-  console.log(`Recherche du compte avec ID: ${accountId}`);
+  console.log(`[API] Recherche du compte avec ID: ${accountId}`);
 
   try {
     // Utiliser la méthode simple select plutôt que query builder

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 export function middleware(request: NextRequest) {
+  // Ne traiter que les routes admin
   if (request.nextUrl.pathname.startsWith("/admin")) {
     const user = request.cookies.get("user");
     if (!user) {
@@ -18,20 +19,11 @@ export function middleware(request: NextRequest) {
     }
   }
 
-  // Récupère le pathname de l'URL actuelle
-  const { pathname, searchParams } = request.nextUrl;
-
-  console.log(
-    `Middleware intercepting: ${pathname}${
-      searchParams.toString() ? `?${searchParams.toString()}` : ""
-    }`
-  );
-
-  // Laisser passer toutes les requêtes sans réécriture pour éviter les problèmes
+  // Pour les autres routes, laisser passer
   return NextResponse.next();
 }
 
-// Ce middleware s'exécute uniquement sur les chemins suivants
+// Ce middleware s'exécute uniquement sur les chemins admin
 export const config = {
-  matcher: ["/admin/:path*", "/products/:path*", "/api/accounts/:path*"],
+  matcher: ["/admin/:path*"],
 };

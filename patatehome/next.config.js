@@ -7,26 +7,18 @@ const nextConfig = {
     DATABASE_AUTH_TOKEN: process.env.DATABASE_AUTH_TOKEN,
   },
   experimental: {},
-  // Désactivons les rewrites pour utiliser les routes natives de Next.js
-  // async rewrites() {
-  //   return [
-  //     // Règle générique pour API
-  //     {
-  //       source: "/api/:path*",
-  //       destination: "/api/:path*",
-  //     },
-  //     // Règle spécifique pour les comptes individuels
-  //     {
-  //       source: "/api/accounts/:id",
-  //       destination: "/api/accounts/[id]",
-  //     },
-  //     // Règle pour les produits
-  //     {
-  //       source: "/products/:id",
-  //       destination: "/products/[id]",
-  //     },
-  //   ];
-  // },
+
+  // Configuration minimale des rewrites
+  async rewrites() {
+    return [
+      // Garder uniquement cette règle générique
+      {
+        source: "/api/:path*",
+        destination: "/api/:path*",
+      },
+    ];
+  },
+
   async headers() {
     return [
       {
