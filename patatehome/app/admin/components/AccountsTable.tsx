@@ -11,7 +11,7 @@ type EditingAccount = {
   features: string;
   status: string;
 };
-
+//test
 export default function AccountsTable() {
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [editingAccount, setEditingAccount] = useState<EditingAccount | null>(
