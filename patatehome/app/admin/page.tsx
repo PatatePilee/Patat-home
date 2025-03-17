@@ -329,6 +329,41 @@ export default function AdminPage() {
     }));
   };
 
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      const droppedFiles = Array.from(e.dataTransfer.files);
+      // Si aucune image principale n'est définie, utiliser la première image comme principale
+      if (!accountForm.imageFile && droppedFiles.length > 0) {
+        const restFiles = droppedFiles.slice(1);
+        setAccountForm((prev) => ({
+          ...prev,
+          imageFile: droppedFiles[0],
+          additionalImageFiles: [
+            ...prev.additionalImageFiles,
+            ...restFiles,
+          ].filter((file) => file !== null) as (File | null)[],
+        }));
+      } else {
+        // Sinon, ajouter toutes les images comme images additionnelles
+        setAccountForm((prev) => ({
+          ...prev,
+          additionalImageFiles: [
+            ...prev.additionalImageFiles,
+            ...droppedFiles,
+          ].filter((file) => file !== null) as (File | null)[],
+        }));
+      }
+    }
+  };
+
   return (
     <div className="relative min-h-screen bg-gradient-to-b from-[#3a1818] to-black text-white p-8">
       {isLoading && (
@@ -627,58 +662,184 @@ export default function AdminPage() {
                     className="p-2 rounded bg-white/10 text-white"
                   />
                   <div className="md:col-span-2 space-y-4">
-                    <div className="flex items-center space-x-4">
+                    <div className="flex flex-col">
+                      <div
+                        className="w-full p-6 border-2 border-dashed border-white/30 rounded-lg mb-4 bg-white/5 flex flex-col items-center justify-center text-white/60 cursor-pointer hover:bg-white/10 transition-all"
+                        onDragOver={handleDragOver}
+                        onDrop={handleDrop}
+                        onClick={() =>
+                          document.getElementById("mainImageInput")?.click()
+                        }
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-12 w-12 mb-2"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={1.5}
+                            d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                          />
+                        </svg>
+                        <p className="text-center">
+                          Glissez-déposez vos images ici
+                          <br />
+                          <span className="text-sm">
+                            ou cliquez pour sélectionner des fichiers
+                          </span>
+                        </p>
+                        {accountForm.imageFile && (
+                          <div className="mt-3 text-green-500">
+                            Image principale : {accountForm.imageFile.name}
+                          </div>
+                        )}
+                        {accountForm.additionalImageFiles.length > 0 && (
+                          <div className="mt-1 text-blue-400">
+                            {
+                              accountForm.additionalImageFiles.filter(
+                                (f) => f !== null
+                              ).length
+                            }{" "}
+                            image(s) additionnelle(s)
+                          </div>
+                        )}
+                      </div>
+
                       <input
+                        id="mainImageInput"
                         type="file"
                         accept="image/*"
-                        onChange={(e) =>
-                          setAccountForm({
-                            ...accountForm,
-                            imageFile: e.target.files?.[0] || null,
-                          })
-                        }
-                        className="flex-1 p-2 rounded bg-white/10 text-white"
-                      />
-                      <span className="text-white/60">Image principale</span>
-                    </div>
-
-                    {accountForm.additionalImageFiles.map((file, index) => (
-                      <div key={index} className="flex items-center space-x-4">
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={(e) => {
-                            const files = e.target.files;
-                            if (files && files[0]) {
-                              const newAdditionalImages = [
-                                ...accountForm.additionalImageFiles,
-                              ];
-                              newAdditionalImages[index] = files[0];
+                        multiple
+                        onChange={(e) => {
+                          if (e.target.files && e.target.files.length > 0) {
+                            const selectedFiles = Array.from(e.target.files);
+                            // Si aucune image principale n'est définie, utiliser la première image comme principale
+                            if (
+                              !accountForm.imageFile &&
+                              selectedFiles.length > 0
+                            ) {
+                              const restFiles = selectedFiles.slice(1);
                               setAccountForm((prev) => ({
                                 ...prev,
-                                additionalImageFiles: newAdditionalImages,
+                                imageFile: selectedFiles[0],
+                                additionalImageFiles: [
+                                  ...prev.additionalImageFiles,
+                                  ...restFiles,
+                                ].filter(
+                                  (file) => file !== null
+                                ) as (File | null)[],
+                              }));
+                            } else {
+                              // Sinon, ajouter toutes les images comme images additionnelles
+                              setAccountForm((prev) => ({
+                                ...prev,
+                                additionalImageFiles: [
+                                  ...prev.additionalImageFiles,
+                                  ...selectedFiles,
+                                ].filter(
+                                  (file) => file !== null
+                                ) as (File | null)[],
                               }));
                             }
-                          }}
-                          className="flex-1 p-2 rounded bg-white/10 text-white"
-                        />
+                          }
+                        }}
+                        className="hidden"
+                      />
+
+                      <div className="text-white mt-2 mb-4">
+                        <div className="flex items-center space-x-2">
+                          <span className="font-medium">
+                            Images sélectionnées :
+                          </span>
+                          <button
+                            type="button"
+                            onClick={handleAddImageField}
+                            className="px-2 py-1 bg-white/10 text-white text-sm rounded hover:bg-white/20"
+                          >
+                            + Ajouter une image
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Image principale affichée si elle existe */}
+                    {accountForm.imageFile && (
+                      <div className="flex items-center space-x-4 bg-white/5 p-3 rounded-lg">
+                        <div className="w-16 h-16 overflow-hidden flex-shrink-0">
+                          <img
+                            src={URL.createObjectURL(accountForm.imageFile)}
+                            alt="Aperçu"
+                            className="w-full h-full object-cover rounded"
+                          />
+                        </div>
+                        <div className="flex-grow">
+                          <div className="text-white font-medium truncate">
+                            {accountForm.imageFile.name}
+                          </div>
+                          <div className="text-white/60 text-sm">
+                            {Math.round(accountForm.imageFile.size / 1024)} KB •
+                            Image principale
+                          </div>
+                        </div>
                         <button
                           type="button"
-                          onClick={() => handleRemoveImageField(index)}
+                          onClick={() =>
+                            setAccountForm({ ...accountForm, imageFile: null })
+                          }
                           className="p-2 text-red-500 hover:text-red-400"
                         >
                           Supprimer
                         </button>
                       </div>
-                    ))}
+                    )}
 
-                    <button
-                      type="button"
-                      onClick={handleAddImageField}
-                      className="w-full p-2 bg-white/10 text-white rounded hover:bg-white/20"
-                    >
-                      + Ajouter une image
-                    </button>
+                    {/* Images additionnelles */}
+                    {accountForm.additionalImageFiles.map(
+                      (file, index) =>
+                        file && (
+                          <div
+                            key={index}
+                            className="flex items-center space-x-4 bg-white/5 p-3 rounded-lg"
+                          >
+                            <div className="w-16 h-16 overflow-hidden flex-shrink-0">
+                              <img
+                                src={URL.createObjectURL(file)}
+                                alt={`Aperçu ${index + 1}`}
+                                className="w-full h-full object-cover rounded"
+                              />
+                            </div>
+                            <div className="flex-grow">
+                              <div className="text-white font-medium truncate">
+                                {file.name}
+                              </div>
+                              <div className="text-white/60 text-sm">
+                                {Math.round(file.size / 1024)} KB • Image
+                                additionnelle {index + 1}
+                              </div>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveImageField(index)}
+                              className="p-2 text-red-500 hover:text-red-400"
+                            >
+                              Supprimer
+                            </button>
+                          </div>
+                        )
+                    )}
+
+                    {/* Afficher le message si aucune image n'est sélectionnée */}
+                    {!accountForm.imageFile &&
+                      accountForm.additionalImageFiles.filter((f) => f !== null)
+                        .length === 0 && (
+                        <div className="text-white/60 italic text-center py-2">
+                          Aucune image sélectionnée
+                        </div>
+                      )}
                   </div>
                   <textarea
                     placeholder="Caractéristiques (une par ligne)"
