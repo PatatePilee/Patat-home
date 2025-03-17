@@ -1,9 +1,8 @@
-import { writeFile, mkdir } from "fs/promises";
-import path from "path";
-import fs from "fs";
+import { uploadToCloudinary } from "./cloudinary";
 
 /**
- * Sauvegarde une image uploadée dans le dossier public/accounts
+ * Sauvegarde une image uploadée dans Cloudinary
+ * et renvoie le nom du fichier pour référence en base de données
  */
 export async function saveAccountImage(image: File): Promise<string> {
   if (!image) {
@@ -32,36 +31,18 @@ export async function saveAccountImage(image: File): Promise<string> {
     );
   }
 
-  // Chemin du dossier d'upload
-  const uploadsDir = path.join(process.cwd(), "public", "accounts");
-  console.log("Dossier de destination:", uploadsDir);
-
   try {
-    // S'assurer que le dossier existe
-    if (!fs.existsSync(uploadsDir)) {
-      console.log("Création du dossier d'uploads manquant:", uploadsDir);
-      await mkdir(uploadsDir, { recursive: true });
-    }
+    // Télécharger sur Cloudinary
+    const result = await uploadToCloudinary(image);
 
-    // Créer un nom de fichier sécurisé
-    const timestamp = Date.now();
-    // Nettoyer le nom du fichier pour éviter les caractères problématiques
-    const cleanName = image.name
-      .toLowerCase()
-      .replace(/[^\w.-]/g, "_") // Remplacer tout ce qui n'est pas alphanumérique, ., - par _
-      .replace(/\s+/g, "_"); // Remplacer les espaces par _
+    // Extraire juste le nom du fichier de l'URL
+    const urlParts = result.url.split("/");
+    const filename = urlParts[urlParts.length - 1];
 
-    // Créer un nom unique avec timestamp
-    const filename = `${timestamp}-${cleanName}`;
-    const filePath = path.join(uploadsDir, filename);
+    console.log(`Image sauvegardée avec succès: ${filename}`);
 
-    // Convertir en buffer et écrire sur le disque
-    const buffer = Buffer.from(await image.arrayBuffer());
-    await writeFile(filePath, buffer);
-
-    console.log(
-      `Image sauvegardée avec succès: ${filePath} (${buffer.length} octets)`
-    );
+    // Stocker l'URL complète dans un attribut supplémentaire si nécessaire
+    // image.cloudinaryUrl = result.url;
 
     return filename;
   } catch (error) {
