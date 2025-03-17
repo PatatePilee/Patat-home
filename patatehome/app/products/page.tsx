@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import DarkLayout from "../layouts/DarkLayout";
+import AccountImage from "../components/AccountImage";
 
 type Account = {
   id: number;
@@ -338,11 +339,10 @@ export default function ProductsPage() {
                           className="border border-foreground/10 rounded-xl p-6 hover:shadow-lg transition-shadow"
                         >
                           <div className="relative aspect-video mb-4 rounded-lg overflow-hidden">
-                            <Image
-                              src={`/accounts/${account.imageFilename}`}
+                            <AccountImage
+                              src={`/api/images/${account.imageFilename}`}
                               alt={`HDV ${account.hdv}`}
-                              fill
-                              className="object-cover"
+                              className=""
                             />
                             {account.cartCount > 0 && (
                               <div className="absolute top-2 right-2 bg-blue-600/90 px-2 py-1 rounded text-sm">

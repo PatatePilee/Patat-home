@@ -1,7 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
 import { Account } from "@/app/types/account";
-import Image from "next/image";
 
 type EditingAccount = {
   id: number;
@@ -18,28 +17,71 @@ export default function AccountsTable() {
   const [editingAccount, setEditingAccount] = useState<EditingAccount | null>(
     null
   );
+  const [timestamp, setTimestamp] = useState(Date.now());
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchAccounts = async () => {
+    if (loading) return;
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      console.log("Récupération des comptes...");
+      const response = await fetch("/api/admin/accounts", {
+        method: "GET",
+        cache: "no-store",
+        headers: {
+          "Cache-Control": "no-cache, no-store, must-revalidate",
+          Pragma: "no-cache",
+          Expires: "0",
+        },
+      });
+
+      console.log("Statut de la réponse:", response.status);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Erreur API:", response.status, errorText);
+        setError(
+          `Erreur ${response.status}: ${errorText || "Erreur inconnue"}`
+        );
+        return;
+      }
+
+      const data = await response.json();
+      console.log(`${data.length} comptes récupérés`);
+
+      setAccounts(
+        data.map((account: Account) => ({
+          ...account,
+          features: Array.isArray(account.features)
+            ? account.features
+            : typeof account.features === "string" &&
+              account.features.startsWith("[")
+            ? JSON.parse(account.features)
+            : account.features.split("\n"),
+        }))
+      );
+
+      // Update timestamp only when data is successfully fetched
+      setTimestamp(Date.now()); // Crée un nouveau timestamp pour forcer le rechargement des images
+    } catch (error) {
+      console.error("Erreur lors de la récupération des comptes:", error);
+      setError(
+        `Erreur lors de la récupération des comptes: ${
+          error instanceof Error ? error.message : "Erreur inconnue"
+        }`
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchAccounts = async () => {
-      try {
-        const response = await fetch("/api/admin/accounts");
-        if (response.ok) {
-          const data = await response.json();
-          setAccounts(
-            data.map((account: Account) => ({
-              ...account,
-              features: Array.isArray(account.features)
-                ? account.features
-                : account.features.split("\n"),
-            }))
-          );
-        }
-      } catch (error) {
-        console.error("Erreur lors de la récupération des comptes:", error);
-      }
-    };
-
     fetchAccounts();
+    // No auto-refresh interval
   }, []);
 
   const handleStartEdit = (account: Account) => {
@@ -64,6 +106,7 @@ export default function AccountsTable() {
         });
         if (response.ok) {
           setAccounts(accounts.filter((account) => account.id !== id));
+          fetchAccounts(); // Refresh after delete
         }
       } catch (error) {
         console.error("Erreur lors de la suppression:", error);
@@ -96,6 +139,7 @@ export default function AccountsTable() {
           )
         );
         setEditingAccount(null);
+        fetchAccounts(); // Refresh after edit
       }
     } catch (error) {
       console.error("Erreur lors de la modification:", error);
@@ -104,6 +148,31 @@ export default function AccountsTable() {
 
   return (
     <div className="overflow-x-auto">
+      <div className="mb-4 flex justify-between">
+        <div>
+          {error && (
+            <div className="bg-red-500 text-white p-2 rounded mb-2">
+              {error}
+              <button
+                className="ml-2 bg-red-700 px-2 py-1 rounded"
+                onClick={() => setError(null)}
+              >
+                ✕
+              </button>
+            </div>
+          )}
+        </div>
+        <button
+          className={`px-4 py-2 bg-blue-600 rounded hover:bg-blue-700 ${
+            loading ? "opacity-50 cursor-not-allowed" : ""
+          }`}
+          onClick={fetchAccounts}
+          disabled={loading}
+        >
+          {loading ? "Chargement..." : "Rafraîchir les comptes et les images"}
+        </button>
+      </div>
+
       <table className="min-w-full bg-white/5 rounded-lg">
         <thead>
           <tr>
@@ -187,9 +256,20 @@ export default function AccountsTable() {
                   />
                 ) : (
                   <img
-                    src={`/accounts/${account.imageFilename}`}
+                    src={`/api/images/${account.imageFilename}?v=${timestamp}`}
                     alt={`HDV ${account.hdv}`}
                     className="w-20 h-20 object-cover rounded"
+                    loading="lazy"
+                    onError={(e) => {
+                      console.error(
+                        `Erreur de chargement de l'image: ${account.imageFilename}`
+                      );
+                      // Utiliser une URL data pour une image minimaliste au lieu de /placeholder.png
+                      (e.target as HTMLImageElement).src =
+                        "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23cccccc'/%3E%3Cpath d='M20 20 L80 80 M80 20 L20 80' stroke='%23999999' stroke-width='3'/%3E%3C/svg%3E";
+                      // Prévenir une autre erreur en désactivant l'événement
+                      e.currentTarget.onerror = null;
+                    }}
                   />
                 )}
               </td>

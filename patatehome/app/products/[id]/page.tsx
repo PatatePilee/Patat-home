@@ -25,6 +25,7 @@ export default function AccountDetailPage({
   const router = useRouter();
   const [account, setAccount] = useState<Account | null>(null);
   const [selectedImage, setSelectedImage] = useState(0);
+  const [timestamp, setTimestamp] = useState(Date.now());
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -109,10 +110,12 @@ export default function AccountDetailPage({
 
   const allImages = account.additionalImages
     ? [
-        `/accounts/${account.imageFilename}`,
-        ...account.additionalImages.map((img) => `/accounts/${img}`),
+        `/api/images/${account.imageFilename}?v=${timestamp}`,
+        ...account.additionalImages.map(
+          (img) => `/api/images/${img}?v=${timestamp}`
+        ),
       ]
-    : [`/accounts/${account.imageFilename}`];
+    : [`/api/images/${account.imageFilename}?v=${timestamp}`];
 
   return (
     <DarkLayout>
@@ -121,12 +124,11 @@ export default function AccountDetailPage({
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             <div className="space-y-6">
               <div className="relative group h-[400px]">
-                <Image
+                <AccountImage
                   src={allImages[selectedImage]}
                   alt={`HDV ${account.hdv}`}
-                  fill
-                  className="object-cover rounded-lg"
-                  priority
+                  className="rounded-lg"
+                  priority={true}
                 />
                 {allImages.length > 1 && (
                   <div className="absolute inset-0 flex items-center justify-between p-4 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -165,12 +167,10 @@ export default function AccountDetailPage({
                         : "border-transparent"
                     }`}
                   >
-                    <Image
+                    <AccountImage
                       src={image}
                       alt={`Miniature ${index + 1}`}
-                      fill
-                      sizes="(max-width: 768px) 20vw, 10vw"
-                      className={`object-cover transition-opacity duration-200 ${
+                      className={`transition-opacity duration-200 ${
                         selectedImage === index
                           ? "opacity-100"
                           : "opacity-70 hover:opacity-100"

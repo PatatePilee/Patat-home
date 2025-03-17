@@ -10,4 +10,5 @@ export interface Account {
   createdAt: number;
   updatedAt: number;
   additionalImages?: string[];
+  _imgTimestamp?: number;
 }
