@@ -49,15 +49,23 @@ export default function AccountDetailPage({
     // Vérifier si l'ID extrait de l'URL est un nombre
     const numericId = !isNaN(parseInt(urlId)) ? urlId : "";
 
-    console.log(`ID extrait directement de l'URL: ${numericId}`);
-    // addDebugElement("ID extrait de l'URL", {
-    //   pathname: window.location.pathname,
-    //   urlParts,
-    //   extractedId: urlId,
-    //   numericId,
-    // });
+    // Si nous n'avons pas pu extraire un ID numérique de l'URL, essayons les searchParams
+    const searchParamsId = new URLSearchParams(window.location.search).get(
+      "id"
+    );
 
-    if (!numericId) {
+    // ID final à utiliser (préférer l'ID de l'URL, puis searchParams)
+    const finalId =
+      numericId ||
+      (searchParamsId && !isNaN(parseInt(searchParamsId))
+        ? searchParamsId
+        : "");
+
+    console.log(
+      `Extraction d'ID: URL=${urlId}, Numérique=${numericId}, SearchParams=${searchParamsId}, Final=${finalId}`
+    );
+
+    if (!finalId) {
       setError("ID de produit manquant ou invalide");
       setIsLoading(false);
       return;
@@ -68,9 +76,9 @@ export default function AccountDetailPage({
       setError(null);
 
       try {
-        // Utiliser l'ID extrait directement de l'URL
+        // Utiliser l'ID extrait de toutes les sources possibles
         const baseUrl = window.location.origin;
-        const url = `${baseUrl}/api/accounts/${numericId}`;
+        const url = `${baseUrl}/api/accounts/${finalId}`;
 
         // addDebugElement("Chargement avec ID de l'URL", { numericId, url });
 

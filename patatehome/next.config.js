@@ -8,13 +8,22 @@ const nextConfig = {
   },
   experimental: {},
 
-  // Configuration minimale des rewrites
+  // Configuration des rewrites nécessaires
   async rewrites() {
     return [
-      // Garder uniquement cette règle générique
+      // Règle pour les API
       {
         source: "/api/:path*",
         destination: "/api/:path*",
+      },
+      // Règles essentielles pour les routes dynamiques
+      {
+        source: "/products/:id",
+        destination: "/products/[id]",
+      },
+      {
+        source: "/api/accounts/:id",
+        destination: "/api/accounts/[id]",
       },
     ];
   },
