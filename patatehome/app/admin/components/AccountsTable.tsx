@@ -29,7 +29,9 @@ export default function AccountsTable() {
 
     try {
       console.log("Récupération des comptes...");
-      const response = await fetch("/api/admin/accounts", {
+      const cacheKey = `accounts_cache_${Date.now()}`;
+
+      const response = await fetch(`/api/admin/accounts?cache=${cacheKey}`, {
         method: "GET",
         cache: "no-store",
         headers: {
@@ -52,6 +54,15 @@ export default function AccountsTable() {
 
       const data = await response.json();
       console.log(`${data.length} comptes récupérés`);
+
+      // Mettre en cache les comptes chargés avec un timestamp
+      localStorage.setItem(
+        "accounts_data",
+        JSON.stringify({
+          timestamp: Date.now(),
+          accounts: data,
+        })
+      );
 
       setAccounts(
         data.map((account: Account) => ({
@@ -80,8 +91,38 @@ export default function AccountsTable() {
   };
 
   useEffect(() => {
-    fetchAccounts();
-    // No auto-refresh interval
+    // Vérifier s'il y a des données en cache et les charger
+    const cachedData = localStorage.getItem("accounts_data");
+    if (cachedData) {
+      try {
+        const { timestamp, accounts: cachedAccounts } = JSON.parse(cachedData);
+        const now = Date.now();
+        // Utiliser le cache seulement s'il est frais (moins de 5 minutes)
+        if (now - timestamp < 5 * 60 * 1000) {
+          console.log("Utilisation des données en cache");
+          setAccounts(
+            cachedAccounts.map((account: Account) => ({
+              ...account,
+              features: Array.isArray(account.features)
+                ? account.features
+                : typeof account.features === "string" &&
+                  account.features.startsWith("[")
+                ? JSON.parse(account.features)
+                : account.features.split("\n"),
+            }))
+          );
+          setTimestamp(timestamp);
+        } else {
+          console.log("Cache expiré, chargement des données fraîches");
+          fetchAccounts();
+        }
+      } catch (e) {
+        console.error("Erreur lors de la lecture du cache:", e);
+        fetchAccounts();
+      }
+    } else {
+      fetchAccounts();
+    }
   }, []);
 
   const handleStartEdit = (account: Account) => {

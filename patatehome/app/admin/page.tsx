@@ -28,6 +28,8 @@ export default function AdminPage() {
     "accounts" | "users" | "reviews" | "giveaway" | "pages"
   >("accounts");
 
+  const [isLoading, setIsLoading] = useState(false);
+
   const [accountForm, setAccountForm] = useState({
     hdv: "",
     level: "",
@@ -103,7 +105,10 @@ export default function AdminPage() {
 
   const handleCreateAccount = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
+
     try {
+      // Préparation des données du formulaire
       const formData = new FormData();
       formData.append("hdv", accountForm.hdv);
       formData.append("level", accountForm.level);
@@ -118,18 +123,30 @@ export default function AdminPage() {
         formData.append("image", accountForm.imageFile);
       }
 
+      // Ajout des images additionnelles avec une clé qui indique le traitement en parallèle
       accountForm.additionalImageFiles?.forEach((file, index) => {
         if (file) {
           formData.append(`additionalImages[${index}]`, file);
         }
       });
 
+      // Ajout d'un indicateur pour le traitement optimisé
+      formData.append("optimizeImages", "true");
+
+      // Envoi de la requête avec un timeout plus long
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 secondes de timeout
+
       const response = await fetch("/api/admin/accounts", {
         method: "POST",
         body: formData,
+        signal: controller.signal,
       });
 
+      clearTimeout(timeoutId);
+
       if (response.ok) {
+        // Réinitialisation du formulaire
         setAccountForm({
           hdv: "",
           level: "",
@@ -139,10 +156,27 @@ export default function AdminPage() {
           features: "",
           status: "available",
         });
+
+        // Afficher un message de succès avant de recharger la page
+        alert("Compte créé avec succès!");
         window.location.reload();
+      } else {
+        const errorData = await response.json();
+        alert(`Erreur: ${errorData.error || "Une erreur est survenue"}`);
       }
     } catch (error) {
       console.error("Erreur lors de la création:", error);
+      if (error instanceof DOMException && error.name === "AbortError") {
+        alert(
+          "La création du compte prend plus de temps que prévu. Veuillez vérifier dans quelques instants si le compte a été créé."
+        );
+      } else {
+        alert(
+          "Erreur lors de la création du compte. Vérifiez la console pour plus de détails."
+        );
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -296,7 +330,43 @@ export default function AdminPage() {
   };
 
   return (
-    <div className="min-h-screen p-8 bg-black">
+    <div className="relative min-h-screen bg-gradient-to-b from-[#3a1818] to-black text-white p-8">
+      {isLoading && (
+        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+          <div className="bg-[#3a1818] p-8 rounded-lg shadow-xl flex flex-col items-center max-w-md">
+            <svg
+              className="animate-spin h-12 w-12 text-blue-500 mb-4"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              ></circle>
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              ></path>
+            </svg>
+            <h3 className="text-xl font-semibold mb-2 text-white">
+              Création du compte en cours...
+            </h3>
+            <p className="text-gray-300 text-center">
+              Veuillez patienter pendant que nous importons les images et créons
+              le compte.
+              <br />
+              Cette opération peut prendre quelques instants.
+            </p>
+          </div>
+        </div>
+      )}
+
       <div className="max-w-7xl mx-auto space-y-8">
         <h1 className="text-3xl font-bold text-white">Administration</h1>
 
@@ -625,9 +695,40 @@ export default function AdminPage() {
                 </div>
                 <button
                   type="submit"
-                  className="w-full p-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                  className={`w-full p-2 ${
+                    isLoading
+                      ? "bg-blue-500 cursor-not-allowed"
+                      : "bg-blue-600 hover:bg-blue-700"
+                  } text-white rounded transition-colors`}
+                  disabled={isLoading}
                 >
-                  Créer le compte
+                  {isLoading ? (
+                    <div className="flex items-center justify-center">
+                      <svg
+                        className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        ></path>
+                      </svg>
+                      Création en cours...
+                    </div>
+                  ) : (
+                    "Créer le compte"
+                  )}
                 </button>
               </form>
             </div>

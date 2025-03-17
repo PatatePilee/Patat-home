@@ -92,10 +92,8 @@ export async function POST(request: Request) {
       );
     }
 
-    // 3. Gérer l'image principale
+    // 3. Vérifier l'image principale
     const imageFile = formData.get("image") as File | null;
-    let imageFilename = "";
-
     if (!imageFile) {
       console.error("Aucune image fournie");
       return NextResponse.json(
@@ -118,21 +116,58 @@ export async function POST(request: Request) {
       );
     }
 
-    // 5. Sauvegarder l'image
-    try {
-      imageFilename = await saveAccountImage(imageFile);
-      console.log("Image sauvegardée avec succès:", imageFilename);
-    } catch (imageError) {
-      console.error("Erreur lors de la sauvegarde de l'image:", imageError);
-      return NextResponse.json(
-        {
-          error: `Erreur lors de la sauvegarde de l'image: ${
-            imageError instanceof Error ? imageError.message : "Erreur inconnue"
-          }`,
-        },
-        { status: 500 }
-      );
-    }
+    const startTime = Date.now();
+    logger.info("Début du traitement des images:", startTime);
+
+    // 5. Traitement optimisé des images - Sauvegarde en parallèle
+    // 5.1 Extraire toutes les images additionnelles
+    const additionalImageEntries = Array.from(formData.entries())
+      .filter(
+        ([key, value]) =>
+          key.startsWith("additionalImages[") && value instanceof File
+      )
+      .map(([key, value]) => ({
+        key,
+        file: value as File,
+        order: parseInt(key.match(/\[(\d+)\]/)?.[1] || "0"),
+      }));
+
+    // 5.2 Traiter l'image principale et les images additionnelles en parallèle
+    const [imageFilename, ...additionalImageResults] = await Promise.all([
+      saveAccountImage(imageFile),
+      ...additionalImageEntries.map((entry) =>
+        saveAccountImage(entry.file)
+          .then((filename) => ({
+            success: true,
+            filename,
+            order: entry.order,
+          }))
+          .catch((error) => ({
+            success: false,
+            error,
+            order: entry.order,
+          }))
+      ),
+    ]);
+
+    logger.info(
+      "Temps de traitement des images:",
+      Date.now() - startTime,
+      "ms"
+    );
+
+    // Filtrer les résultats réussis
+    const successfulAdditionalImages = additionalImageResults
+      .filter(
+        (
+          result
+        ): result is { success: true; filename: string; order: number } =>
+          result.success && "filename" in result
+      )
+      .map((result) => ({
+        filename: result.filename,
+        displayOrder: result.order,
+      }));
 
     // 6. Préparer et insérer les données du compte
     const featuresStr = (formData.get("features") as string) || "[]";
@@ -149,60 +184,56 @@ export async function POST(request: Request) {
       updatedAt: Math.floor(Date.now() / 1000),
     };
 
-    console.log("Données du compte à insérer:", accountData);
+    logger.info("Données du compte à insérer:", accountData);
 
-    // 7. Insertion en base de données
+    // 7. Insertion en base de données - regrouper les opérations pour réduire les allers-retours
+    const dbStartTime = Date.now();
     try {
+      // 7.1 Insérer le compte
       const [newAccount] = await db
         .insert(accounts)
         .values(accountData)
         .returning();
+      logger.info("Compte créé avec succès, ID:", newAccount.id);
 
-      console.log("Compte créé avec succès, ID:", newAccount.id);
+      // 7.2 Préparer les données des images additionnelles
+      const additionalImageValues = successfulAdditionalImages.map((img) => ({
+        accountId: newAccount.id,
+        filename: img.filename,
+        displayOrder: img.displayOrder,
+      }));
 
-      // 6. Gérer les images additionnelles
-      const additionalImages = [];
-      const entries = Array.from(formData.entries());
-
-      for (const [key, value] of entries) {
-        if (key.startsWith("additionalImages[") && value instanceof File) {
-          try {
-            const filename = await saveAccountImage(value);
-            console.log("Image additionnelle sauvegardée:", filename);
-
-            additionalImages.push({
-              accountId: newAccount.id,
-              filename,
-              displayOrder: parseInt(key.match(/\[(\d+)\]/)?.[1] || "0"),
-            });
-          } catch (addImageError) {
-            console.error(
-              "Erreur lors de la sauvegarde d'une image additionnelle:",
-              addImageError
-            );
-            // On continue même en cas d'erreur sur une image additionnelle
-          }
-        }
-      }
-
-      if (additionalImages.length > 0) {
-        await db.insert(accountAdditionalImages).values(additionalImages);
-        console.log(
-          `${additionalImages.length} images additionnelles ajoutées`
+      // 7.3 Insérer les images additionnelles si nécessaire
+      if (additionalImageValues.length > 0) {
+        await db.insert(accountAdditionalImages).values(additionalImageValues);
+        logger.info(
+          `${additionalImageValues.length} images additionnelles ajoutées`
         );
       }
 
-      // 7. Renvoyer la réponse
+      logger.info(
+        "Temps d'insertion en base de données:",
+        Date.now() - dbStartTime,
+        "ms"
+      );
+      logger.info(
+        "Temps total de création du compte:",
+        Date.now() - startTime,
+        "ms"
+      );
+
+      // 8. Renvoyer la réponse
       return NextResponse.json({
         message: "Compte créé avec succès",
         account: {
           ...newAccount,
           imageUrl: `/api/images/${imageFilename}?v=${Date.now()}`,
-          additionalImages: additionalImages.map((img) => img.filename),
+          additionalImages: additionalImageValues.map((img) => img.filename),
+          processingTime: Date.now() - startTime,
         },
       });
     } catch (dbError) {
-      console.error("Erreur base de données:", dbError);
+      logger.error("Erreur base de données:", dbError);
       return NextResponse.json(
         {
           error: `Erreur base de données: ${
@@ -213,7 +244,7 @@ export async function POST(request: Request) {
       );
     }
   } catch (generalError) {
-    console.error(
+    logger.error(
       "Erreur générale lors de la création du compte:",
       generalError
     );

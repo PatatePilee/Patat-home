@@ -35,7 +35,7 @@ export async function uploadToCloudinary(
     const base64Data = buffer.toString("base64");
     const fileUri = `data:${file.type};base64,${base64Data}`;
 
-    // Télécharger sur Cloudinary
+    // Télécharger sur Cloudinary avec optimisations
     return new Promise((resolve, reject) => {
       cloudinary.uploader.upload(
         fileUri,
@@ -43,6 +43,17 @@ export async function uploadToCloudinary(
           public_id: `accounts/${filename.replace(/\.[^/.]+$/, "")}`, // Enlever l'extension
           folder: "patatehome",
           resource_type: "auto",
+          // Nouvelles options d'optimisation
+          quality: "auto", // Optimisation automatique de la qualité
+          fetch_format: "auto", // Format optimal selon le navigateur
+          eager: [
+            { width: 800, crop: "scale", quality: "auto" }, // Version optimisée
+          ],
+          eager_async: true,
+          eager_notification_url: "", // URL vide au lieu de null
+          transformation: [
+            { width: 800, crop: "scale" }, // Redimensionnement de base
+          ],
         },
         (error, result) => {
           if (error || !result) {
