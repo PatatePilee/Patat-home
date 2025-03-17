@@ -43,17 +43,15 @@ export async function uploadToCloudinary(
           public_id: `accounts/${filename.replace(/\.[^/.]+$/, "")}`, // Enlever l'extension
           folder: "patatehome",
           resource_type: "auto",
-          // Nouvelles options d'optimisation
-          quality: "auto", // Optimisation automatique de la qualité
+          // Paramètres optimisés pour la haute qualité
+          quality: 90, // Qualité fixée à 90% pour garantir une bonne qualité
           fetch_format: "auto", // Format optimal selon le navigateur
           eager: [
-            { width: 800, crop: "scale", quality: "auto" }, // Version optimisée
+            { quality: 90 }, // Version haute qualité sans redimensionnement
           ],
           eager_async: true,
           eager_notification_url: "", // URL vide au lieu de null
-          transformation: [
-            { width: 800, crop: "scale" }, // Redimensionnement de base
-          ],
+          // Suppression du redimensionnement par défaut
         },
         (error, result) => {
           if (error || !result) {
