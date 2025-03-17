@@ -1,0 +1,2 @@
+# Ce fichier assure que le dossier [id] est inclus dans git
+# et correctement déployé, même s'il est vide 

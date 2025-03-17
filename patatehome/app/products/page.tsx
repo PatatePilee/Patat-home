@@ -371,7 +371,8 @@ export default function ProductsPage() {
                             </span>
                             <Link
                               href={`/products/${account.id}`}
-                              className="text-blue-600 hover:underline"
+                              prefetch={true}
+                              className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-lg transition-colors"
                             >
                               Voir les détails
                             </Link>

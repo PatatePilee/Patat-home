@@ -17,9 +17,21 @@ export function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL("/login", request.url));
     }
   }
+
+  // Récupère le pathname de l'URL actuelle
+  const { pathname, searchParams } = request.nextUrl;
+
+  console.log(
+    `Middleware intercepting: ${pathname}${
+      searchParams.toString() ? `?${searchParams.toString()}` : ""
+    }`
+  );
+
+  // Laisser passer toutes les requêtes sans réécriture pour éviter les problèmes
   return NextResponse.next();
 }
 
+// Ce middleware s'exécute uniquement sur les chemins suivants
 export const config = {
-  matcher: "/admin/:path*",
+  matcher: ["/admin/:path*", "/products/:path*", "/api/accounts/:path*"],
 };

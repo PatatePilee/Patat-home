@@ -19,37 +19,99 @@ type Account = {
 
 export default function AccountDetailPage({
   params,
+  searchParams,
 }: {
   params: { id: string };
+  searchParams?: { id?: string };
 }) {
   const router = useRouter();
   const [account, setAccount] = useState<Account | null>(null);
   const [selectedImage, setSelectedImage] = useState(0);
   const [timestamp, setTimestamp] = useState(Date.now());
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Récupérer l'ID depuis params ou searchParams si nécessaire
+  const accountId = params.id !== "[id]" ? params.id : searchParams?.id || "";
 
   useEffect(() => {
+    if (!accountId) {
+      setError("ID de produit manquant");
+      setIsLoading(false);
+      return;
+    }
+
+    console.log(`ID du produit à charger: ${accountId}`);
+
     async function fetchAccount() {
+      setIsLoading(true);
+      setError(null);
+
       try {
-        const response = await fetch(`/api/accounts/${params.id}`);
-        if (response.ok) {
-          const data = await response.json();
-          setAccount({
-            ...data,
-            features: Array.isArray(data.features)
-              ? data.features
-              : JSON.parse(data.features),
-          });
+        console.log(`Récupération du compte ID: ${accountId}`);
+
+        // Utiliser l'URL absolue qui fonctionnera même en production
+        const baseUrl = window.location.origin;
+        const url = `${baseUrl}/api/accounts/${accountId}`;
+        console.log(`URL API: ${url}`);
+
+        const response = await fetch(url, {
+          method: "GET",
+          headers: {
+            "Cache-Control": "no-cache, no-store, must-revalidate",
+            Pragma: "no-cache",
+            Expires: "0",
+          },
+        });
+
+        console.log(`Statut de la réponse: ${response.status}`);
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          const errorMessage =
+            errorData.error || `Erreur serveur: ${response.status}`;
+          console.error(`Erreur API:`, errorMessage);
+          setError(errorMessage);
+          return;
         }
+
+        const data = await response.json();
+        console.log(`Données reçues:`, {
+          id: data.id,
+          hdv: data.hdv,
+          level: data.level,
+          hasFeatures: !!data.features,
+          featuresType: typeof data.features,
+          hasAdditionalImages: !!data.additionalImages,
+          additionalImagesCount: data.additionalImages?.length,
+        });
+
+        // Si features est déjà un tableau (grâce aux changements dans l'API), on l'utilise tel quel
+        // Sinon on essaie de le parser
+        const features = Array.isArray(data.features)
+          ? data.features
+          : typeof data.features === "string"
+          ? JSON.parse(data.features)
+          : [];
+
+        setAccount({
+          ...data,
+          features,
+        });
       } catch (error) {
         console.error("Erreur lors de la récupération du compte:", error);
+        setError(
+          `Erreur: ${
+            error instanceof Error ? error.message : "Une erreur est survenue"
+          }`
+        );
       } finally {
         setIsLoading(false);
       }
     }
 
     fetchAccount();
-  }, [params.id]);
+  }, [accountId]);
 
   const handleAddToCart = async (accountId: number) => {
     const userStr = localStorage.getItem("user");
@@ -95,6 +157,22 @@ export default function AccountDetailPage({
       <DarkLayout>
         <div className="min-h-screen flex items-center justify-center">
           <div className="text-white">Chargement...</div>
+        </div>
+      </DarkLayout>
+    );
+
+  if (error)
+    return (
+      <DarkLayout>
+        <div className="min-h-screen flex flex-col items-center justify-center p-4">
+          <div className="text-red-500 text-xl mb-4">Erreur</div>
+          <div className="text-white mb-8">{error}</div>
+          <button
+            onClick={() => router.push("/products")}
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg"
+          >
+            Retour aux produits
+          </button>
         </div>
       </DarkLayout>
     );

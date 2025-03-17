@@ -1,0 +1,2 @@
+# Ce fichier assure que le dossier d'API dynamique [id] est inclus dans git
+# et correctement déployé, même s'il est vide 
