@@ -3,6 +3,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import AccountImage from "@/app/components/AccountImage";
 
 type CartItem = {
   id: number;
@@ -12,7 +13,7 @@ type CartItem = {
     hdv: number;
     level: number;
     price: number;
-    imageUrl: string;
+    imageFilename: string;
     features: string[];
   };
 };
@@ -100,11 +101,10 @@ export default function CartPage() {
                   key={item.id}
                   className="bg-white/5 p-4 rounded-xl flex gap-4 items-center"
                 >
-                  <div className="relative w-24 h-24">
-                    <Image
-                      src={item.account.imageUrl}
+                  <div className="relative w-full aspect-[16/9]">
+                    <AccountImage
+                      src={`/api/images/${item.account.imageFilename}`}
                       alt={`HDV ${item.account.hdv}`}
-                      fill
                       className="object-cover rounded-lg"
                     />
                   </div>

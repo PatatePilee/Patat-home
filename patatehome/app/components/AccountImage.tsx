@@ -7,6 +7,7 @@ interface AccountImageProps {
   alt: string;
   className?: string;
   priority?: boolean;
+  onError?: () => void;
 }
 
 export default function AccountImage({
@@ -14,6 +15,7 @@ export default function AccountImage({
   alt,
   className = "",
   priority = false,
+  onError,
 }: AccountImageProps) {
   const [error, setError] = useState(false);
 
@@ -40,6 +42,8 @@ export default function AccountImage({
         onError={(e) => {
           console.error(`Erreur de chargement de l'image: ${src}`);
           setError(true);
+          // Appeler le callback externe s'il existe
+          if (onError) onError();
           e.currentTarget.onerror = null; // Empêche les boucles infinies
         }}
       />

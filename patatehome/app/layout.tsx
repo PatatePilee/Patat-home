@@ -1,13 +1,37 @@
 import { GeistSans } from "geist/font/sans";
 import "./globals.css";
 import Header from "./components/Header";
-import { metadata } from "./metadata";
 import Footer from "./components/Footer";
 import { Providers } from "./providers";
+import type { Metadata } from "next";
 
 const font = GeistSans;
 
-export { metadata };
+const metadata: Metadata = {
+  title: "Patate Home",
+  description: "Achetez des comtpes Clash of clans en toute sécurité",
+  icons: {
+    icon: "/pdp.png", // favicon
+    apple: "/pdp.png", // pour iOS
+  },
+  openGraph: {
+    title: "Patate Home",
+    description: "Achetez des comtpes Clash of clans en toute sécurité",
+    images: [
+      {
+        url: "/pdp.png",
+        width: 1200,
+        height: 630,
+        alt: "Patate Home",
+      },
+    ],
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    images: ["/pdp.png"],
+  },
+};
 
 export default function RootLayout({
   children,
