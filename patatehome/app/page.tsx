@@ -14,7 +14,7 @@ async function getAccounts() {
       .where(eq(accounts.status, "available"))
       .orderBy(desc(accounts.id));
 
-    console.log("Comptes disponibles récupérés de la DB:", allAccounts.length);
+    //console.log("Comptes disponibles récupérés de la DB:", allAccounts.length);
 
     return allAccounts.map((account) => {
       let features;
@@ -38,36 +38,36 @@ async function getAccounts() {
 
 export default async function Home() {
   const accounts = await getAccounts();
-  console.log("Total des comptes disponibles récupérés:", accounts.length);
+  //console.log("Total des comptes disponibles récupérés:", accounts.length);
 
   // Filtrer pour ne garder que les comptes avec des images valides
   const accountsWithImages = accounts.filter((account) => {
     const hasImage = !!account.imageFilename;
     if (!hasImage) {
-      console.log(`Compte ${account.id} ignoré: pas d'image valide`);
+      //console.log(`Compte ${account.id} ignoré: pas d'image valide`);
     }
     return hasImage;
   });
 
-  console.log("Comptes avec images valides:", accountsWithImages.length);
+  //console.log("Comptes avec images valides:", accountsWithImages.length);
 
   // Afficher les informations sur chaque compte pour le debug
   accountsWithImages.forEach((account, index) => {
-    console.log(`Compte valide ${index}:`, {
-      id: account.id,
-      hdv: account.hdv,
-      status: account.status,
-      imageName: account.imageFilename,
-      featuresLength: Array.isArray(account.features)
-        ? account.features.length
-        : "not array",
-    });
+    //console.log(`Compte valide ${index}:`, {
+    //  id: account.id,
+    //  hdv: account.hdv,
+    //  status: account.status,
+    //  imageName: account.imageFilename,
+    //  featuresLength: Array.isArray(account.features)
+    //    ? account.features.length
+    //    : "not array",
+    //});
   });
 
   // Prendre les 3 premiers comptes pour le carrousel
   const featuredAccounts = accountsWithImages.slice(0, 3);
 
-  console.log("Comptes vedettes sélectionnés:", featuredAccounts.length);
+  //console.log("Comptes vedettes sélectionnés:", featuredAccounts.length);
 
   // Vérifier si les features sont bien des tableaux
   const processedAccounts = featuredAccounts.map((account) => {
@@ -75,15 +75,15 @@ export default async function Home() {
 
     if (!Array.isArray(account.features)) {
       try {
-        console.log(`Conversion des features pour le compte ${account.id}`);
+        //console.log(`Conversion des features pour le compte ${account.id}`);
         processedFeatures = JSON.parse(
           typeof account.features === "string" ? account.features : "[]"
         );
       } catch (e) {
-        console.error(
-          `Erreur lors de la conversion des features pour le compte ${account.id}:`,
-          e
-        );
+        //console.error(
+        //  `Erreur lors de la conversion des features pour le compte ${account.id}:`,
+        //  e
+        //);
         processedFeatures = [];
       }
     }
@@ -94,14 +94,14 @@ export default async function Home() {
     };
   });
 
-  console.log("Comptes vedettes après traitement:", processedAccounts.length);
+  //console.log("Comptes vedettes après traitement:", processedAccounts.length);
   if (processedAccounts.length > 0) {
-    console.log("Premier compte vedette:", {
-      id: processedAccounts[0].id,
-      hdv: processedAccounts[0].hdv,
-      imageFilename: processedAccounts[0].imageFilename,
-      featuresLength: processedAccounts[0].features.length,
-    });
+    //console.log("Premier compte vedette:", {
+    //  id: processedAccounts[0].id,
+    //   hdv: processedAccounts[0].hdv,
+    //   imageFilename: processedAccounts[0].imageFilename,
+    //   featuresLength: processedAccounts[0].features.length,
+    // });
   }
 
   return (
@@ -136,9 +136,9 @@ export default async function Home() {
       {/* Comptes en vedette */}
       <section className="py-24">
         <div className="max-w-7xl mx-auto px-4">
-          <h2 className="text-4xl font-bold text-center mb-12 text-white">
+          {/* <h2 className="text-4xl font-bold text-center mb-12 text-white">
             Comptes en Vedette
-          </h2>
+          </h2> */}
           {processedAccounts.length >= 2 ? (
             <FeaturedCarousel accounts={processedAccounts} />
           ) : (

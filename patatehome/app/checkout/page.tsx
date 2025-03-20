@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
+import AccountImage from "@/app/components/AccountImage";
 
 type CartItem = {
   id: number;
@@ -11,7 +11,7 @@ type CartItem = {
     hdv: number;
     level: number;
     price: number;
-    imageUrl: string;
+    imageFilename: string;
     features: string[];
   };
 };
@@ -67,10 +67,9 @@ export default function CheckoutPage() {
                   className="flex items-center gap-4 border-b border-white/10 pb-4"
                 >
                   <div className="relative w-16 h-16">
-                    <Image
-                      src={item.account.imageUrl}
+                    <AccountImage
+                      src={`/api/images/${item.account.imageFilename}`}
                       alt={`HDV ${item.account.hdv}`}
-                      fill
                       className="object-cover rounded"
                     />
                   </div>

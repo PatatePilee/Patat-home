@@ -64,22 +64,22 @@ export default function FeaturedCarousel({
     [initialTimestamp, reloadTimestamps]
   );
 
-  const nextSlide = () => {
+  const nextSlide = useCallback(() => {
     setCurrentIndex((prev) => (prev === accounts.length - 1 ? 0 : prev + 1));
-  };
+  }, [accounts.length]);
 
   useEffect(() => {
     const timer = setInterval(nextSlide, 5000);
     return () => clearInterval(timer);
-  }, []);
+  }, [nextSlide]);
 
-  const getPrevIndex = () => {
+  const getPrevIndex = useCallback(() => {
     return currentIndex === 0 ? accounts.length - 1 : currentIndex - 1;
-  };
+  }, [currentIndex, accounts.length]);
 
-  const getNextIndex = () => {
+  const getNextIndex = useCallback(() => {
     return currentIndex === accounts.length - 1 ? 0 : currentIndex + 1;
-  };
+  }, [currentIndex, accounts.length]);
 
   const prevAccount = accounts[getPrevIndex()];
   const currentAccount = accounts[currentIndex];
@@ -153,6 +153,7 @@ export default function FeaturedCarousel({
             alt={`HDV ${currentAccount.hdv}`}
             className="w-full h-full object-cover"
             onError={() => handleImageError(currentAccount.imageFilename)}
+            priority={true}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
           <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
@@ -185,6 +186,7 @@ export default function FeaturedCarousel({
               <Link
                 href={`/products/${currentAccount.id}`}
                 className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md transition-colors"
+                prefetch={true}
               >
                 Voir le produit
               </Link>

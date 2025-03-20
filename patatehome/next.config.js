@@ -12,6 +12,15 @@ const nextConfig = {
   },
   experimental: {},
 
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "**",
+      },
+    ],
+  },
+
   // Configuration des rewrites nécessaires
   async rewrites() {
     return [
@@ -49,6 +58,16 @@ const nextConfig = {
               "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version",
           },
         ],
+      },
+    ];
+  },
+
+  async redirects() {
+    return [
+      {
+        source: "/favicon.ico",
+        destination: "/pdp.png",
+        permanent: true,
       },
     ];
   },

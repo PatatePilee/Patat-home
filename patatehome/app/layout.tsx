@@ -4,32 +4,51 @@ import Header from "./components/Header";
 import Footer from "./components/Footer";
 import { Providers } from "./providers";
 import type { Metadata } from "next";
+import Head from "next/head";
 
 const font = GeistSans;
 
-const metadata: Metadata = {
+export const metadata: Metadata = {
   title: "Patate Home",
-  description: "Achetez des comtpes Clash of clans en toute sécurité",
+  description: "Achetez des comptes Clash of clans en toute sécurité",
+  metadataBase: new URL("https://clashofpatates.com"),
   icons: {
-    icon: "/pdp.png", // favicon
-    apple: "/pdp.png", // pour iOS
+    icon: [
+      { url: "/pdp.png", type: "image/png", sizes: "32x32" },
+      { url: "/pdp.png", type: "image/png", sizes: "16x16" },
+    ],
+    shortcut: ["/pdp.png"],
+    apple: [{ url: "/pdp.png", sizes: "180x180" }],
+    other: [
+      {
+        rel: "mask-icon",
+        url: "/pdp.png",
+      },
+    ],
   },
   openGraph: {
     title: "Patate Home",
-    description: "Achetez des comtpes Clash of clans en toute sécurité",
+    description: "Achetez des comptes Clash of clans en toute sécurité",
+    siteName: "Patate Home",
     images: [
       {
         url: "/pdp.png",
-        width: 1200,
-        height: 630,
-        alt: "Patate Home",
+        width: 800,
+        height: 800,
+        alt: "Logo Patate Home",
       },
     ],
+    locale: "fr_FR",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
+    title: "Patate Home",
+    description: "Achetez des comptes Clash of clans en toute sécurité",
     images: ["/pdp.png"],
+  },
+  verification: {
+    google: "google-site-verification=VOTRE_CODE_VERIFICATION",
   },
 };
 
@@ -40,19 +59,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fr" className={font.className}>
-      <head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-              new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-              j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-              'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-              })(window,document,'script','dataLayer','GTM-5ZVSNRSP');
-            `,
-          }}
-        />
-      </head>
+      <Head>
+        <link rel="icon" type="image/png" sizes="32x32" href="/pdp.png" />
+        <link rel="icon" type="image/png" sizes="16x16" href="/pdp.png" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/pdp.png" />
+        <link rel="mask-icon" href="/pdp.png" color="#000000" />
+        <meta name="msapplication-TileImage" content="/pdp.png" />
+        <meta name="msapplication-TileColor" content="#000000" />
+      </Head>
       <body
         suppressHydrationWarning
         className="bg-black min-h-screen text-white"
